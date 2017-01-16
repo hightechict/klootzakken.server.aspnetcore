@@ -51,16 +51,18 @@ namespace Klootzakken.Server
             return new GameState(players, null, startPlayer);
         }
 
-        public static GameState Play(this GameState game, Play play)
+        public static GameState WhenPlaying(this GameState game, Play play)
         {
             var playingPlayerNo = game.ActivePlayer;
             var playingPlayer = game.Players[playingPlayerNo];
             if (!playingPlayer.PossibleActions.Contains(play))
                 throw new InvalidOperationException();
             var tempPlayers = game.Players.Select((pl, i) => i == playingPlayerNo ? pl.ThatPlayed(play) : pl).ToArray();
+
             var lastProperPlayPlayer = tempPlayers.WhoPutLastCardsDown();
-            var newActivePlayer = (playingPlayerNo + 1) % game.Players.Length;
             var lastProperPlay = tempPlayers[lastProperPlayPlayer].PlaysThisRound.Last();
+
+            var newActivePlayer = (playingPlayerNo + 1) % game.Players.Length;
             if (lastProperPlayPlayer == newActivePlayer)
             {
                 var players = tempPlayers.Select((pl, i) => i == newActivePlayer ? pl.WithStartOptions() : pl)
