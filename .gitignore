@@ -5,6 +5,6 @@
 .vs
 obj
 bin
-/src/Klootzakken.Server/packages
+packages
 *.user
-/src/Klootzakken.Server/_NCrunch_Klootzakken.Server
+_NCrunch_*
