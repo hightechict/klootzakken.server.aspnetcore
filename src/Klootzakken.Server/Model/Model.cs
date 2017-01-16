@@ -89,6 +89,8 @@ namespace Klootzakken.Server.Model
         }
 
         public Card[] PlayedCards { get; }
+
+        public static Play Pass { get; } = new Play(new Card[0]);
     }
 
     public class Player

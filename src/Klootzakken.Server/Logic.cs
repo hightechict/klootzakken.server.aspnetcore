@@ -51,16 +51,85 @@ namespace Klootzakken.Server
             return new GameState(players, null, startPlayer);
         }
 
+        public static GameState Play(this GameState game, Play play)
+        {
+            var playingPlayerNo = game.ActivePlayer;
+            var playingPlayer = game.Players[playingPlayerNo];
+            if (!playingPlayer.PossibleActions.Contains(play))
+                throw new InvalidOperationException();
+            var tempPlayers = game.Players.Select((pl, i) => i == playingPlayerNo ? pl.ThatPlayed(play) : pl).ToArray();
+            var lastProperPlayPlayer = tempPlayers.WhoPutLastCardsDown();
+            var newActivePlayer = (playingPlayerNo + 1) % game.Players.Length;
+            var lastProperPlay = tempPlayers[lastProperPlayPlayer].PlaysThisRound.Last();
+            if (lastProperPlayPlayer == newActivePlayer)
+            {
+                var players = tempPlayers.Select((pl, i) => i == newActivePlayer ? pl.WithStartOptions() : pl)
+                    .ToArray();
+                var newTopCard = lastProperPlay.PlayedCards.Last();
+                return new GameState(players, newTopCard, newActivePlayer);
+            }
+            else
+            {
+                var players = tempPlayers.Select((pl, i) => i == newActivePlayer ? pl.WithOptions(lastProperPlay) : pl)
+                    .ToArray();
+
+                return new GameState(players, game.CenterCard, newActivePlayer);
+            }
+        }
+
+        public static int WhoPutLastCardsDown(this YourPlayer[] players)
+        {
+            return players.Select(
+                    (p, i) =>
+                        new {PlayerNo = i, HighestCard = p.PlaysThisRound.Last().PlayedCards.FirstOrDefault()?.Value ?? 0})
+                .OrderByDescending(x => x.HighestCard)
+                .First()
+                .PlayerNo;
+        }
+
+        public static YourPlayer ThatPlayed(this YourPlayer player, Play play)
+        {
+            return new YourPlayer(player.Name, player.PlaysThisRound.Concat(play).ToArray(), player.CardsInHand.Except(play.PlayedCards).ToArray(), new Play[0]);
+        }
+
+        public static IEnumerable<T> Concat<T>(this IEnumerable<T> src, T item)
+        {
+            return src.Concat(Enumerable.Repeat(item, 1));
+        }
+
         public static YourPlayer WithStartOptions(this YourPlayer player)
         {
             var possibleActions = player.CardsInHand.StartOptions();
             return new YourPlayer(player.Name, new Play[0], player.CardsInHand, possibleActions );
         }
 
+        public static YourPlayer WithOptions(this YourPlayer player, Play lastProperPlay)
+        {
+            var possibleActions = player.CardsInHand.Options(lastProperPlay);
+            return new YourPlayer(player.Name, new Play[0], player.CardsInHand, possibleActions);
+        }
+
         public static Play[] StartOptions(this Card[] cardsInHand)
         {
-            var retVal = cardsInHand.GroupBy( card => card.Value).SelectMany( AllPermutations).Select( cardArray => new Play(cardArray)).Distinct();
-            return retVal.ToArray();
+            return cardsInHand
+                .GroupBy( card => card.Value)
+                .SelectMany( AllPermutations)
+                .Select( cardArray => new Play(cardArray))
+                .Distinct()
+                .ToArray();
+        }
+
+        public static Play[] Options(this Card[] cardsInHand, Play lastProperPlay)
+        {
+            return cardsInHand
+                .Where(card => card.Value > lastProperPlay.PlayedCards[0].Value)
+                .GroupBy(card => card.Value)
+                .SelectMany(AllPermutations)
+                .Where(cardArray => cardArray.Length == lastProperPlay.PlayedCards.Length)
+                .Select(cardArray => new Play(cardArray))
+                .Distinct()
+                .Concat(Enumerable.Repeat(Play.Pass, 1))
+                .ToArray();
         }
 
         private static IEnumerable<Card[]> AllPermutations(IEnumerable<Card> cardsOfSameValue)
