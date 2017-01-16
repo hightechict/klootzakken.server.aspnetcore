@@ -1,4 +1,7 @@
-﻿namespace Klootzakken.Server.Model
+﻿using System;
+using System.Linq;
+
+namespace Klootzakken.Server.Model
 {
     public enum CardSuit
     {
@@ -25,8 +28,28 @@
         Ace = 14,
     }
 
-    public class Card
+    public class Card : IEquatable<Card>
     {
+        public bool Equals(Card other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Suit == other.Suit && Value == other.Value;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((Card) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return 0;
+        }
+
         public Card(CardSuit suit, CardValue value)
         {
             Suit = suit;
@@ -37,8 +60,29 @@
         public CardValue Value { get; }
     }
 
-    public class Play
+    public class Play : IEquatable<Play>
     {
+        public bool Equals(Play other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            if (PlayedCards.Length != other.PlayedCards.Length) return false;
+            return PlayedCards.Union(other.PlayedCards).Count() == PlayedCards.Length;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((Play) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return 0;
+        }
+
         public Play(Card[] playedCards)
         {
             PlayedCards = playedCards;
@@ -120,8 +164,4 @@
 
         public string[] Players { get; }
     }
-}
-
-namespace Klootzakken.Server
-{
 }
