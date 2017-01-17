@@ -89,6 +89,7 @@ namespace Klootzakken.Server.Model
         }
 
         public Card[] PlayedCards { get; }
+        public bool IsPass => PlayedCards.Length == 0;
 
         public static Play Pass { get; } = new Play(new Card[0]);
     }
@@ -109,7 +110,7 @@ namespace Klootzakken.Server.Model
     {
         public YourPlayer(string name, Play[] playsThisRound, Card[] cardsInHand, Play[] possibleActions) : base(name, playsThisRound)
         {
-            CardsInHand = cardsInHand;
+            CardsInHand = cardsInHand.OrderBy(c => c.Value).ToArray();
             PossibleActions = possibleActions;
         }
 

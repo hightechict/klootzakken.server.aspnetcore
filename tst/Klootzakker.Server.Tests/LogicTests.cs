@@ -37,6 +37,14 @@ namespace Klootzakker.Server.Tests
         }
 
         [Fact]
+        public void InitialGameStateAllPlayersHaveCardsSortedByValue()
+        {
+            var game = DealFourPlayerGame();
+            Assert.All(game.Players,
+                player => Assert.Equal(player.CardsInHand.Select(c=>c.Value), player.CardsInHand.Select(c => c.Value).OrderBy(v => v)));
+        }
+
+        [Fact]
         public void InitialGameStateActivePlayerIsDistributedEvenly()
         {
             var timesStartPlayer = new int[4];
@@ -176,6 +184,19 @@ namespace Klootzakker.Server.Tests
             var twoPassed = onePassed.WhenPlaying(Play.Pass);
             var threePassed = twoPassed.WhenPlaying(Play.Pass);
             Assert.Equal(game.ActivePlayer, threePassed.ActivePlayer);
+            Assert.DoesNotContain(Play.Pass, threePassed.Players[threePassed.ActivePlayer].PossibleActions);
+        }
+
+        [Fact]
+        public void SecondPlayerWinsHandIfThreePlayersPass()
+        {
+            var game = DealFourPlayerGame();
+            var firstPlayed = game.WhenPlaying(game.Players[game.ActivePlayer].PossibleActions[0]);
+            var secondPlayed = firstPlayed.WhenPlaying(firstPlayed.Players[firstPlayed.ActivePlayer].PossibleActions.First(pl => !pl.IsPass));
+            var onePassed = secondPlayed.WhenPlaying(Play.Pass);
+            var twoPassed = onePassed.WhenPlaying(Play.Pass);
+            var threePassed = twoPassed.WhenPlaying(Play.Pass);
+            Assert.Equal(firstPlayed.ActivePlayer, threePassed.ActivePlayer);
             Assert.DoesNotContain(Play.Pass, threePassed.Players[threePassed.ActivePlayer].PossibleActions);
         }
 
