@@ -96,19 +96,31 @@ namespace Klootzakken.Server.Model
 
     public class Player
     {
-        public Player(string name, Play[] playsThisRound)
+        public Player(string name, Play[] playsThisRound, Rank newRank)
         {
             Name = name;
             PlaysThisRound = playsThisRound;
+            NewRank = newRank;
         }
 
         public string Name { get; }
         public Play[] PlaysThisRound { get; }
+        public Rank NewRank { get; }
+    }
+
+    public enum Rank
+    {
+        Unknown,
+        Klootzak,
+        ViezeKlootzak,
+        Neutraal,
+        VicePresident,
+        President
     }
 
     public class YourPlayer : Player
     {
-        public YourPlayer(string name, Play[] playsThisRound, Card[] cardsInHand, Play[] possibleActions) : base(name, playsThisRound)
+        public YourPlayer(string name, Play[] playsThisRound, Card[] cardsInHand, Play[] possibleActions, Rank newRank) : base(name, playsThisRound, newRank)
         {
             CardsInHand = cardsInHand.OrderBy(c => c.Value).ToArray();
             PossibleActions = possibleActions;
@@ -120,7 +132,7 @@ namespace Klootzakken.Server.Model
 
     public class OtherPlayer : Player
     {
-        public OtherPlayer(string name, Play[] playsThisRound, int cardCount) : base(name, playsThisRound)
+        public OtherPlayer(string name, Play[] playsThisRound, int cardCount, Rank newRank) : base(name, playsThisRound, newRank)
         {
             CardCount = cardCount;
         }

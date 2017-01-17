@@ -200,6 +200,75 @@ namespace Klootzakker.Server.Tests
             Assert.DoesNotContain(Play.Pass, threePassed.Players[threePassed.ActivePlayer].PossibleActions);
         }
 
+        [Fact]
+        public void WhenGameEndsOnlyOnePlayerHasCardsLeftInHand()
+        {
+            var game = DealFourPlayerGame();
+            while (game.Players.Any(pl => pl.NewRank == Rank.Unknown))
+            {
+                var activePlayer = game.Players.First(pl => pl.PossibleActions.Length > 0);
+                game = game.WhenPlaying(activePlayer.PossibleActions[0]);
+            }
+            Assert.Equal(1, game.Players.Count(pl => pl.CardsInHand.Length!=0));
+        }
+
+        [Fact]
+        public void WhenGameEndsEachRoleIsAssigned()
+        {
+            var game = DealFourPlayerGame();
+            while (game.Players.Any(pl => pl.NewRank == Rank.Unknown))
+            {
+                var activePlayer = game.Players.First(pl => pl.PossibleActions.Length > 0);
+                game = game.WhenPlaying(activePlayer.PossibleActions[0]);
+            }
+            Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.President));
+            Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.VicePresident));
+            Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.ViezeKlootzak));
+            Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.Klootzak));
+        }
+
+        [Fact]
+        public void WhenThreePlayerGameEndsProperRolesAreAssigned()
+        {
+            var game = DealThreePlayerGame();
+            while (game.Players.Any(pl => pl.NewRank == Rank.Unknown))
+            {
+                var activePlayer = game.Players.First(pl => pl.PossibleActions.Length > 0);
+                game = game.WhenPlaying(activePlayer.PossibleActions[0]);
+            }
+            Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.President));
+            Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.Neutraal));
+            Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.Klootzak));
+        }
+
+        [Fact]
+        public void WhenFivePlayerGameEndsProperRolesAreAssigned()
+        {
+            var game = DealFivePlayerGame();
+            while (game.Players.Any(pl => pl.NewRank == Rank.Unknown))
+            {
+                var activePlayer = game.Players.First(pl => pl.PossibleActions.Length > 0);
+                game = game.WhenPlaying(activePlayer.PossibleActions[0]);
+            }
+            Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.President));
+            Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.VicePresident));
+            Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.Neutraal));
+            Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.ViezeKlootzak));
+            Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.Klootzak));
+        }
+
+        [Fact]
+        public void ActivePlayerAlwaysHasPossibleActions()
+        {
+            var game = DealFourPlayerGame();
+            while (game.Players.Any(pl => pl.NewRank == Rank.Unknown))
+            {
+                var activePlayer = game.Players[game.ActivePlayer];
+                Assert.True(activePlayer.PossibleActions.Length > 0);
+                game = game.WhenPlaying(activePlayer.PossibleActions[0]);
+            }
+        }
+
         private static Card[] HandOfOnlySingles
         {
             get { return Enumerable.Range(7, 8).Cast<CardValue>().Select(v => new Card(CardSuit.Hearts, v)).ToArray(); }
@@ -245,6 +314,19 @@ namespace Klootzakker.Server.Tests
             var actual = lobby.Deal();
             return actual;
         }
+
+        private static GameState DealFivePlayerGame()
+        {
+            var lobby = new Lobby(new[] { "HDB", "HDS", "HDM", "HDb", "HDK" });
+            var actual = lobby.Deal();
+            return actual;
+        }
+
+        private static GameState DealThreePlayerGame()
+        {
+            var lobby = new Lobby(new[] { "HDB", "HDS", "HDM" });
+            var actual = lobby.Deal();
+            return actual;
+        }
     }
 }
-
