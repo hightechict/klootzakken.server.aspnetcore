@@ -83,7 +83,7 @@ namespace Klootzakken.Server
         {
             return players.Select(
                     (p, i) =>
-                        new {PlayerNo = i, HighestCard = p.PlaysThisRound.Last().PlayedCards.FirstOrDefault()?.Value ?? 0})
+                        new {PlayerNo = i, HighestCard = p.PlaysThisRound.LastOrDefault()?.PlayedCards?.FirstOrDefault()?.Value ?? 0})
                 .OrderByDescending(x => x.HighestCard)
                 .First()
                 .PlayerNo;

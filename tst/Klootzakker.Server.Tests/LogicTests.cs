@@ -111,6 +111,74 @@ namespace Klootzakker.Server.Tests
             Assert.Equal(2, possiblePlays.Count(play => play.PlayedCards.Length == 4));
         }
 
+        [Fact]
+        public void HandOfSinglesCanRespondToSevenWithPassOrAnyHigherCard()
+        {
+            var cardsInHand = HandOfOnlySingles;
+            var possiblePlays = cardsInHand.Options(new Play(new[] {new Card(CardSuit.Clubs, CardValue.Seven),}));
+            Assert.Equal(8, possiblePlays.Length);
+            Assert.Equal(1, possiblePlays.Count(play => play.PlayedCards.Length==0));
+            Assert.Equal(7, possiblePlays.Count(play => play.PlayedCards.Length == 1));
+            Assert.All(possiblePlays,
+                play => Assert.True(play.PlayedCards.Length == 0 || play.PlayedCards[0].Value > CardValue.Seven));
+        }
+
+        [Fact]
+        public void HandOfSinglesCanRespondToKingWithPassOrAce()
+        {
+            var cardsInHand = HandOfOnlySingles;
+            var possiblePlays = cardsInHand.Options(new Play(new[] { new Card(CardSuit.Clubs, CardValue.King), }));
+            Assert.Equal(2, possiblePlays.Length);
+            Assert.Equal(1, possiblePlays.Count(play => play.PlayedCards.Length == 0));
+            Assert.Equal(1, possiblePlays.Count(play => play.PlayedCards.Length == 1));
+            Assert.All(possiblePlays,
+                play => Assert.True(play.PlayedCards.Length == 0 || play.PlayedCards[0].Value > CardValue.King));
+        }
+
+        [Fact]
+        public void HandOfSinglesCanRespondToPairWithPass()
+        {
+            var cardsInHand = HandOfOnlySingles;
+            var possiblePlays = cardsInHand.Options(new Play(new[] { new Card(CardSuit.Clubs, CardValue.Seven), new Card(CardSuit.Spades, CardValue.Seven), }));
+            Assert.Equal(1, possiblePlays.Length);
+            Assert.Equal(1, possiblePlays.Count(play => play.PlayedCards.Length == 0));
+        }
+
+        [Fact]
+        public void HandOfFoursomesCanRespondToPairWithHigherPair()
+        {
+            var cardsInHand = HandOfTwoFoursomes;
+            var possiblePlays = cardsInHand.Options(new Play(new[] { new Card(CardSuit.Clubs, CardValue.Seven), new Card(CardSuit.Spades, CardValue.Seven), }));
+            Assert.Equal(7, possiblePlays.Length);
+            Assert.Equal(1, possiblePlays.Count(play => play.PlayedCards.Length == 0));
+            Assert.Equal(6, possiblePlays.Count(play => play.PlayedCards.Length == 2));
+        }
+
+        [Fact]
+        public void FollowPlayersHaveOptionToPass()
+        {
+            var game = DealFourPlayerGame();
+            var iter = game.WhenPlaying(game.Players[game.ActivePlayer].PossibleActions[0]);
+            for (int q = 1; q <= 3; q++)
+            {
+                Assert.Equal((game.ActivePlayer + q) % 4, iter.ActivePlayer);
+                Assert.Contains(Play.Pass, iter.Players[iter.ActivePlayer].PossibleActions);
+                iter = iter.WhenPlaying(Play.Pass);
+            }
+        }
+
+        [Fact]
+        public void StartPlayerWinsHandIfThreePlayersPass()
+        {
+            var game = DealFourPlayerGame();
+            var firstPlayed = game.WhenPlaying(game.Players[game.ActivePlayer].PossibleActions[0]);
+            var onePassed = firstPlayed.WhenPlaying(Play.Pass);
+            var twoPassed = onePassed.WhenPlaying(Play.Pass);
+            var threePassed = twoPassed.WhenPlaying(Play.Pass);
+            Assert.Equal(game.ActivePlayer, threePassed.ActivePlayer);
+            Assert.DoesNotContain(Play.Pass, threePassed.Players[threePassed.ActivePlayer].PossibleActions);
+        }
+
         private static Card[] HandOfOnlySingles
         {
             get { return Enumerable.Range(7, 8).Cast<CardValue>().Select(v => new Card(CardSuit.Hearts, v)).ToArray(); }
@@ -158,3 +226,4 @@ namespace Klootzakker.Server.Tests
         }
     }
 }
+
