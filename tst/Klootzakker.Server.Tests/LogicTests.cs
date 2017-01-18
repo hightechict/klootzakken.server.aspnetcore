@@ -204,11 +204,7 @@ namespace Klootzakker.Server.Tests
         public void WhenGameEndsOnlyOnePlayerHasCardsLeftInHand()
         {
             var game = DealFourPlayerGame();
-            while (game.Players.Any(pl => pl.NewRank == Rank.Unknown))
-            {
-                var activePlayer = game.Players.First(pl => pl.PossibleActions.Length > 0);
-                game = game.WhenPlaying(activePlayer.PossibleActions[0]);
-            }
+            game = PlayGameUntilEnded(game);
             Assert.Equal(1, game.Players.Count(pl => pl.CardsInHand.Length!=0));
         }
 
@@ -216,11 +212,7 @@ namespace Klootzakker.Server.Tests
         public void WhenGameEndsEachRoleIsAssigned()
         {
             var game = DealFourPlayerGame();
-            while (game.Players.Any(pl => pl.NewRank == Rank.Unknown))
-            {
-                var activePlayer = game.Players.First(pl => pl.PossibleActions.Length > 0);
-                game = game.WhenPlaying(activePlayer.PossibleActions[0]);
-            }
+            game = PlayGameUntilEnded(game);
             Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.President));
             Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.VicePresident));
             Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.ViezeKlootzak));
@@ -228,14 +220,18 @@ namespace Klootzakker.Server.Tests
         }
 
         [Fact]
+        public void WhenGameEndsEveryoneCanOnlyPass()
+        {
+            var game = DealFourPlayerGame();
+            game = PlayGameUntilEnded(game);
+            Assert.All(game.Players, pl => Assert.Equal(pl.PossibleActions, Play.PassOnly));
+        }
+
+        [Fact]
         public void WhenThreePlayerGameEndsProperRolesAreAssigned()
         {
             var game = DealThreePlayerGame();
-            while (game.Players.Any(pl => pl.NewRank == Rank.Unknown))
-            {
-                var activePlayer = game.Players.First(pl => pl.PossibleActions.Length > 0);
-                game = game.WhenPlaying(activePlayer.PossibleActions[0]);
-            }
+            game = PlayGameUntilEnded(game);
             Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.President));
             Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.Neutraal));
             Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.Klootzak));
@@ -245,11 +241,7 @@ namespace Klootzakker.Server.Tests
         public void WhenFivePlayerGameEndsProperRolesAreAssigned()
         {
             var game = DealFivePlayerGame();
-            while (game.Players.Any(pl => pl.NewRank == Rank.Unknown))
-            {
-                var activePlayer = game.Players.First(pl => pl.PossibleActions.Length > 0);
-                game = game.WhenPlaying(activePlayer.PossibleActions[0]);
-            }
+            game = PlayGameUntilEnded(game);
             Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.President));
             Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.VicePresident));
             Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.Neutraal));
@@ -257,11 +249,22 @@ namespace Klootzakker.Server.Tests
             Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.Klootzak));
         }
 
+        private static GameState PlayGameUntilEnded(GameState game)
+        {
+            var endedGame = game;
+            while (endedGame.Phase != GamePhase.Ended)
+            {
+                var activePlayer = endedGame.Players.First(pl => pl.PossibleActions.Length > 0);
+                endedGame = endedGame.WhenPlaying(activePlayer.PossibleActions[0]);
+            }
+            return endedGame;
+        }
+
         [Fact]
         public void ActivePlayerAlwaysHasPossibleActions()
         {
             var game = DealFourPlayerGame();
-            while (game.Players.Any(pl => pl.NewRank == Rank.Unknown))
+            while (game.Phase == GamePhase.Playing)
             {
                 var activePlayer = game.Players[game.ActivePlayer];
                 Assert.True(activePlayer.PossibleActions.Length > 0);
@@ -311,21 +314,21 @@ namespace Klootzakker.Server.Tests
         private static GameState DealFourPlayerGame()
         {
             var lobby = new Lobby(new[] {"HDB", "HDS", "HDM", "HDb"});
-            var actual = lobby.Deal();
+            var actual = lobby.DealFirstGame();
             return actual;
         }
 
         private static GameState DealFivePlayerGame()
         {
             var lobby = new Lobby(new[] { "HDB", "HDS", "HDM", "HDb", "HDK" });
-            var actual = lobby.Deal();
+            var actual = lobby.DealFirstGame();
             return actual;
         }
 
         private static GameState DealThreePlayerGame()
         {
             var lobby = new Lobby(new[] { "HDB", "HDS", "HDM" });
-            var actual = lobby.Deal();
+            var actual = lobby.DealFirstGame();
             return actual;
         }
     }

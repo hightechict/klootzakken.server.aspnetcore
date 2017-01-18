@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Klootzakken.Server.Model
@@ -83,23 +84,24 @@ namespace Klootzakken.Server.Model
             return 0;
         }
 
-        public Play(Card[] playedCards)
+        public Play(IEnumerable<Card> playedCards)
         {
-            PlayedCards = playedCards;
+            PlayedCards = playedCards.ToArray();
         }
 
         public Card[] PlayedCards { get; }
         public bool IsPass => PlayedCards.Length == 0;
 
         public static Play Pass { get; } = new Play(new Card[0]);
+        public static IEnumerable<Play> PassOnly { get; } = new[] {Pass};
     }
 
-    public class Player
+    public class PlayerBase
     {
-        public Player(string name, Play[] playsThisRound, Rank newRank)
+        public PlayerBase(string name, IEnumerable<Play> playsThisRound, Rank newRank)
         {
             Name = name;
-            PlaysThisRound = playsThisRound;
+            PlaysThisRound = playsThisRound.ToArray();
             NewRank = newRank;
         }
 
@@ -118,45 +120,102 @@ namespace Klootzakken.Server.Model
         President
     }
 
-    public class YourPlayer : Player
+    public class Player : PlayerBase
     {
-        public YourPlayer(string name, Play[] playsThisRound, Card[] cardsInHand, Play[] possibleActions, Rank newRank) : base(name, playsThisRound, newRank)
+        public Player(string name, IEnumerable<Play> playsThisRound, IEnumerable<Card> cardsInHand, IEnumerable<Play> possibleActions, Rank newRank, Play exchangedCards) : base(name, playsThisRound, newRank)
         {
+            ExchangedCards = exchangedCards;
             CardsInHand = cardsInHand.OrderBy(c => c.Value).ToArray();
-            PossibleActions = possibleActions;
+            PossibleActions = possibleActions.ToArray();
         }
 
         public Card[] CardsInHand { get; }
         public Play[] PossibleActions { get; }
+        public Play ExchangedCards { get; }
     }
 
-    public class OtherPlayer : Player
+    public class OtherPlayer : PlayerBase
     {
-        public OtherPlayer(string name, Play[] playsThisRound, int cardCount, Rank newRank) : base(name, playsThisRound, newRank)
+        public OtherPlayer(string name, IEnumerable<Play> playsThisRound, int cardCount, Rank newRank, int exchangedCardsCount) : base(name, playsThisRound, newRank)
         {
             CardCount = cardCount;
+            ExchangedCardsCount = exchangedCardsCount;
         }
 
         public int CardCount { get; }
+        public int ExchangedCardsCount { get; }
     }
 
     public class GameState
     {
-        public GameState(YourPlayer[] players, Card centerCard, int activePlayer)
+        public GameState(Player[] players, Card centerCard, int activePlayer)
         {
-            Players = players;
+            Phase = GamePhase.Playing;
+            Players = players.ToArray();
+
+            if (Players.All(p => p.NewRank != Rank.Unknown))
+                throw new ArgumentException("One player must not have a rank in an active game");
+
+            if (Players.Any(p => p.NewRank != Rank.Unknown && p.CardsInHand.Length !=0 ))
+                throw new ArgumentException("No player can have a rank and cards in hand in an active game");
+
+            if (Players.Any(p => p.NewRank != Rank.Unknown && p.PossibleActions.Length != 0))
+                throw new ArgumentException("No player can have a rank and actions in an active game");
+
             CenterCard = centerCard;
             ActivePlayer = activePlayer;
         }
 
-        public YourPlayer[] Players { get; }
+        public GameState(IEnumerable<Player> players, Card centerCard)
+        {
+            Phase = GamePhase.Ended;
+            Players = players.ToArray();
+
+            if (Players.Any( p => p.NewRank == Rank.Unknown))
+                throw new ArgumentException("All players must have a NewRank in an ended game");
+
+            if (!Players.All(p => p.PossibleActions.Length == 1 && Equals(p.PossibleActions[0], Play.Pass)))
+                throw new ArgumentException("All players must have only the Pass option in an ended game");
+
+            CenterCard = centerCard;
+            ActivePlayer = Players.FindSingle(pl => pl.NewRank == Rank.Klootzak);
+        }
+
+        public GameState(IEnumerable<Player> players)
+        {
+            Phase = GamePhase.SwappingCards;
+            Players = players.ToArray();
+
+            if (Players.Any(p => p.NewRank == Rank.Unknown))
+                throw new ArgumentException("All players must have a NewRank when Swapping Cards");
+
+            if (Players.Any(p => p.PossibleActions.Length > 1))
+                throw new ArgumentException("No player must have more than one action when Swapping Cards");
+
+            if (Players.All(p => p.PossibleActions.Length == 0))
+                throw new ArgumentException("At least one player must have an action when Swapping Cards");
+
+            CenterCard = null;
+            ActivePlayer = Players.FindSingle(pl => pl.NewRank == Rank.Klootzak);
+        }
+
+        public Player[] Players { get; }
         public Card CenterCard { get; }
         public int ActivePlayer { get; }
+
+        public GamePhase Phase {get; }
+    }
+
+    public enum GamePhase
+    {
+        Playing,
+        SwappingCards,
+        Ended
     }
 
     public class PublicGameState
     {
-        public PublicGameState(Player you, OtherPlayer[] otherPlayers, Card centerCard, string activePlayerName)
+        public PublicGameState(PlayerBase you, OtherPlayer[] otherPlayers, Card centerCard, string activePlayerName)
         {
             You = you;
             OtherPlayers = otherPlayers;
@@ -164,7 +223,7 @@ namespace Klootzakken.Server.Model
             ActivePlayerName = activePlayerName;
         }
 
-        public Player You { get; }
+        public PlayerBase You { get; }
         public OtherPlayer[] OtherPlayers { get; }
         public Card CenterCard { get; }
         public string ActivePlayerName { get; }
