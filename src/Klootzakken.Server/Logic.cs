@@ -41,7 +41,7 @@ namespace Klootzakken.Server
             int ignorePlayerThatGotLowestCard;
             var deal = DealCards(playerCount, out ignorePlayerThatGotLowestCard);
             var players = game.Players.Select((pl,i) => pl.WithCardExchangeOptions(deal[i])).ToArray();
-            return new GameState(players, null, -1);
+            return new GameState(players);
         }
 
         private static Player WithCardExchangeOptions(this Player player, IEnumerable<Card> newCardsInHand)
@@ -114,8 +114,17 @@ namespace Klootzakken.Server
             {
                 case GamePhase.Playing:
                     return game.WhenPlayingActiveGame(play);
+                case GamePhase.Ended:
+                    return game.WhenPlayingEndedGame(play);
             }
             throw new NotImplementedException();
+        }
+
+        public static GameState WhenPlayingEndedGame(this GameState game, Play play)
+        {
+            if (!play.IsPass)
+                throw new InvalidOperationException();
+            return game.Redeal();
         }
 
         public static Player WhenGameEnded(this Player player)

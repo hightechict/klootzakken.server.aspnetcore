@@ -228,6 +228,15 @@ namespace Klootzakker.Server.Tests
         }
 
         [Fact]
+        public void WhenOnePlayerPassesInEndedGamePhaseBecomesSwapping()
+        {
+            var game = DealFourPlayerGame();
+            var endedGame = PlayGameUntilEnded(game);
+            var swappingGame = endedGame.WhenPlaying(Play.Pass);
+            Assert.Equal(GamePhase.SwappingCards, swappingGame.Phase);
+        }
+
+        [Fact]
         public void WhenThreePlayerGameEndsProperRolesAreAssigned()
         {
             var game = DealThreePlayerGame();
