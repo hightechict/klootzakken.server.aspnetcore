@@ -121,8 +121,24 @@ namespace Klootzakken.Server
                     return game.WhenPlayingActiveGame(play);
                 case GamePhase.Ended:
                     return game.WhenPlayingEndedGame(play);
+                case GamePhase.SwappingCards:
+                    return game.WhenPlayingSwappingGame(play);
             }
             throw new NotImplementedException();
+        }
+
+        public static GameState WhenPlayingSwappingGame(this GameState game, Play play)
+        {
+            var playingPlayerNo = game.Players.FindSingle(pl => pl.PossibleActions.Contains(play));
+            var playerAfterPlay = game.Players[playingPlayerNo].ThatSwapped();
+            var newPlayers = game.Players.Select((pl, i) => i == playingPlayerNo ? playerAfterPlay : pl);
+            return new GameState(newPlayers);
+        }
+
+        public static Player ThatSwapped(this Player player)
+        {
+            var swappedCards = player.PossibleActions[0];
+            return new Player(player.Name, new Play[0], player.CardsInHand.Except(swappedCards.PlayedCards), new Play[0], player.NewRank, swappedCards);
         }
 
         public static GameState WhenPlayingEndedGame(this GameState game, Play play)

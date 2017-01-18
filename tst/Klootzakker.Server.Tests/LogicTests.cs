@@ -295,6 +295,20 @@ namespace Klootzakker.Server.Tests
             Assert.Equal(klootzak.CardsInHand.Select(c => c.Value).OrderByDescending(c => c).Take(2), klootzak.PossibleActions[0].PlayedCards.Select(c => c.Value).OrderByDescending(c => c));
         }
 
+        [Fact]
+        public void PlayingInSwappingGameWorks()
+        {
+            var game = CreateSwappingGame;
+            var player0Action = game.Players[0].PossibleActions[0];
+            var afterOnePlay = game.WhenPlaying(player0Action);
+            Assert.Equal(GamePhase.SwappingCards, afterOnePlay.Phase);
+            var player0 = afterOnePlay.Players[0];
+            Assert.Empty(player0.PossibleActions);
+            Assert.Equal(player0Action, player0.ExchangedCards);
+            Assert.Equal(8 - player0Action.PlayedCards.Length, player0.CardsInHand.Length);
+            Assert.All(player0Action.PlayedCards, swappedCard => Assert.DoesNotContain(swappedCard, player0.CardsInHand));
+        }
+
         #region Helpers
 
         private static GameState CreateEndedGame => PlayGameUntilEnded(DealFourPlayerGame());
