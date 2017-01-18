@@ -296,17 +296,51 @@ namespace Klootzakker.Server.Tests
         }
 
         [Fact]
-        public void PlayingInSwappingGameWorks()
+        public void FirstPlayInSwappingGameWorks()
         {
             var game = CreateSwappingGame;
             var player0Action = game.Players[0].PossibleActions[0];
             var afterOnePlay = game.WhenPlaying(player0Action);
-            Assert.Equal(GamePhase.SwappingCards, afterOnePlay.Phase);
             var player0 = afterOnePlay.Players[0];
+            Assert.Equal(GamePhase.SwappingCards, afterOnePlay.Phase);
             Assert.Empty(player0.PossibleActions);
             Assert.Equal(player0Action, player0.ExchangedCards);
             Assert.Equal(8 - player0Action.PlayedCards.Length, player0.CardsInHand.Length);
             Assert.All(player0Action.PlayedCards, swappedCard => Assert.DoesNotContain(swappedCard, player0.CardsInHand));
+        }
+
+        [Fact]
+        public void WhenAllPlayersHaveSwappedGameBecomesPlaying()
+        {
+            var game = CreateSwappingGame;
+            var klootzakPlayerNo = game.Players.FindSingle(pl => pl.NewRank == Rank.Klootzak);
+            var numberOfActionsPlayed = 0;
+            while (game.Phase == GamePhase.SwappingCards)
+            {
+                var anAction = game.Players.First(pl => pl.PossibleActions.Length == 1).PossibleActions[0];
+                game = game.WhenPlaying(anAction);
+                numberOfActionsPlayed++;
+            }
+            Assert.Equal(GamePhase.Playing, game.Phase);
+            Assert.Equal(4, numberOfActionsPlayed);
+            Assert.Equal(klootzakPlayerNo, game.ActivePlayer);
+            Assert.NotEmpty(game.Players[klootzakPlayerNo].PossibleActions);
+            Assert.DoesNotContain(Play.Pass, game.Players[klootzakPlayerNo].PossibleActions);
+        }
+
+        [Fact]
+        public void WhenAllFivePlayersHaveSwappedGameBecomesPlaying()
+        {
+            var game = CreateSwappingFivePlayerGame;
+            var numberOfActionsPlayed = 0;
+            while (game.Phase == GamePhase.SwappingCards)
+            {
+                var anAction = game.Players.First(pl => pl.PossibleActions.Length==1).PossibleActions[0];
+                game = game.WhenPlaying(anAction);
+                numberOfActionsPlayed++;
+            }
+            Assert.Equal(GamePhase.Playing, game.Phase);
+            Assert.Equal(5, numberOfActionsPlayed);
         }
 
         #region Helpers

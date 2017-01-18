@@ -124,15 +124,44 @@ namespace Klootzakken.Server
                 case GamePhase.SwappingCards:
                     return game.WhenPlayingSwappingGame(play);
             }
-            throw new NotImplementedException();
+            throw new ArgumentOutOfRangeException();
         }
 
         public static GameState WhenPlayingSwappingGame(this GameState game, Play play)
         {
             var playingPlayerNo = game.Players.FindSingle(pl => pl.PossibleActions.Contains(play));
             var playerAfterPlay = game.Players[playingPlayerNo].ThatSwapped();
-            var newPlayers = game.Players.Select((pl, i) => i == playingPlayerNo ? playerAfterPlay : pl);
-            return new GameState(newPlayers);
+            var newPlayers = game.Players.Select((pl, i) => i == playingPlayerNo ? playerAfterPlay : pl).ToArray();
+            var thisWasNotTheLastPlayerToSwap = game.Players.Count(pl => pl.PossibleActions.Length != 0) > 1;
+            if (thisWasNotTheLastPlayerToSwap)
+                return new GameState(newPlayers);
+            var startPlayers = newPlayers.Select(pl => pl.TakeSwappedCards( newPlayers)).ToArray();
+            return new GameState(startPlayers, null, game.ActivePlayer);
+        }
+
+        public static Player TakeSwappedCards(this Player player, IEnumerable<Player> allPlayers)
+        {
+            var oppositeRank = GetOppositeRank(player.NewRank);
+            var oppositePlayer = allPlayers.First(pl => pl.NewRank == oppositeRank);
+            var newPlayer = new Player(player.Name, new Play[0],
+                player.CardsInHand.Concat(oppositePlayer.ExchangedCards.PlayedCards), new Play[0], Rank.Unknown, null);
+            return player.NewRank == Rank.Klootzak ? newPlayer.WithStartOptions() : newPlayer;
+        }
+
+        private static Rank GetOppositeRank(Rank playerNewRank)
+        {
+            switch (playerNewRank)
+            {
+                case Rank.Klootzak: return Rank.President;
+                case Rank.ViezeKlootzak: return Rank.VicePresident;
+                case Rank.Neutraal: return Rank.Neutraal;
+                case Rank.VicePresident: return Rank.ViezeKlootzak;
+                case Rank.President: return Rank.Klootzak;
+                case Rank.Unknown:
+                    throw new ArgumentOutOfRangeException();
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         public static Player ThatSwapped(this Player player)

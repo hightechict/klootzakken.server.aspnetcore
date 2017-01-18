@@ -148,7 +148,7 @@ namespace Klootzakken.Server.Model
 
     public class GameState
     {
-        public GameState(Player[] players, Card centerCard, int activePlayer)
+        public GameState(IEnumerable<Player> players, Card centerCard, int activePlayer)
         {
             Phase = GamePhase.Playing;
             Players = players.ToArray();
@@ -161,6 +161,12 @@ namespace Klootzakken.Server.Model
 
             if (Players.Any(p => p.NewRank != Rank.Unknown && p.PossibleActions.Length != 0))
                 throw new ArgumentException("No player can have a rank and actions in an active game");
+
+            if (Players[activePlayer].PossibleActions.Length==0)
+                throw new ArgumentException("Active player must have at least one action in an active game");
+
+            if (Players.Count(p => p.PossibleActions.Length != 0) != 1)
+                throw new ArgumentException("Only one player must have actions in an active game");
 
             CenterCard = centerCard;
             ActivePlayer = activePlayer;
