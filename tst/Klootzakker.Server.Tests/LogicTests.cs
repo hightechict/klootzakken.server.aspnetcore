@@ -41,7 +41,9 @@ namespace Klootzakker.Server.Tests
         {
             var game = DealFourPlayerGame();
             Assert.All(game.Players,
-                player => Assert.Equal(player.CardsInHand.Select(c=>c.Value), player.CardsInHand.Select(c => c.Value).OrderBy(v => v)));
+                player =>
+                    Assert.Equal(player.CardsInHand.Select(c => c.Value),
+                        player.CardsInHand.Select(c => c.Value).OrderBy(v => v)));
         }
 
         [Fact]
@@ -50,7 +52,7 @@ namespace Klootzakker.Server.Tests
             var timesStartPlayer = new int[4];
             for (int q = 0; q < 400; q++)
                 timesStartPlayer[DealFourPlayerGame().ActivePlayer]++;
-            Assert.All( timesStartPlayer, times => Assert.InRange(times, 75, 125));
+            Assert.All(timesStartPlayer, times => Assert.InRange(times, 75, 125));
         }
 
         [Fact]
@@ -125,7 +127,7 @@ namespace Klootzakker.Server.Tests
             var cardsInHand = HandOfOnlySingles;
             var possiblePlays = cardsInHand.Options(new Play(new[] {new Card(CardSuit.Clubs, CardValue.Seven),}));
             Assert.Equal(8, possiblePlays.Length);
-            Assert.Equal(1, possiblePlays.Count(play => play.PlayedCards.Length==0));
+            Assert.Equal(1, possiblePlays.Count(play => play.PlayedCards.Length == 0));
             Assert.Equal(7, possiblePlays.Count(play => play.PlayedCards.Length == 1));
             Assert.All(possiblePlays,
                 play => Assert.True(play.PlayedCards.Length == 0 || play.PlayedCards[0].Value > CardValue.Seven));
@@ -135,7 +137,7 @@ namespace Klootzakker.Server.Tests
         public void HandOfSinglesCanRespondToKingWithPassOrAce()
         {
             var cardsInHand = HandOfOnlySingles;
-            var possiblePlays = cardsInHand.Options(new Play(new[] { new Card(CardSuit.Clubs, CardValue.King), }));
+            var possiblePlays = cardsInHand.Options(new Play(new[] {new Card(CardSuit.Clubs, CardValue.King),}));
             Assert.Equal(2, possiblePlays.Length);
             Assert.Equal(1, possiblePlays.Count(play => play.PlayedCards.Length == 0));
             Assert.Equal(1, possiblePlays.Count(play => play.PlayedCards.Length == 1));
@@ -147,7 +149,10 @@ namespace Klootzakker.Server.Tests
         public void HandOfSinglesCanRespondToPairWithPass()
         {
             var cardsInHand = HandOfOnlySingles;
-            var possiblePlays = cardsInHand.Options(new Play(new[] { new Card(CardSuit.Clubs, CardValue.Seven), new Card(CardSuit.Spades, CardValue.Seven), }));
+            var possiblePlays =
+                cardsInHand.Options(
+                    new Play(new[]
+                        {new Card(CardSuit.Clubs, CardValue.Seven), new Card(CardSuit.Spades, CardValue.Seven),}));
             Assert.Equal(1, possiblePlays.Length);
             Assert.Equal(1, possiblePlays.Count(play => play.PlayedCards.Length == 0));
         }
@@ -156,7 +161,10 @@ namespace Klootzakker.Server.Tests
         public void HandOfFoursomesCanRespondToPairWithHigherPair()
         {
             var cardsInHand = HandOfTwoFoursomes;
-            var possiblePlays = cardsInHand.Options(new Play(new[] { new Card(CardSuit.Clubs, CardValue.Seven), new Card(CardSuit.Spades, CardValue.Seven), }));
+            var possiblePlays =
+                cardsInHand.Options(
+                    new Play(new[]
+                        {new Card(CardSuit.Clubs, CardValue.Seven), new Card(CardSuit.Spades, CardValue.Seven),}));
             Assert.Equal(7, possiblePlays.Length);
             Assert.Equal(1, possiblePlays.Count(play => play.PlayedCards.Length == 0));
             Assert.Equal(6, possiblePlays.Count(play => play.PlayedCards.Length == 2));
@@ -192,7 +200,9 @@ namespace Klootzakker.Server.Tests
         {
             var game = DealFourPlayerGame();
             var firstPlayed = game.WhenPlaying(game.Players[game.ActivePlayer].PossibleActions[0]);
-            var secondPlayed = firstPlayed.WhenPlaying(firstPlayed.Players[firstPlayed.ActivePlayer].PossibleActions.First(pl => !pl.IsPass));
+            var secondPlayed =
+                firstPlayed.WhenPlaying(
+                    firstPlayed.Players[firstPlayed.ActivePlayer].PossibleActions.First(pl => !pl.IsPass));
             var onePassed = secondPlayed.WhenPlaying(Play.Pass);
             var twoPassed = onePassed.WhenPlaying(Play.Pass);
             var threePassed = twoPassed.WhenPlaying(Play.Pass);
@@ -205,7 +215,7 @@ namespace Klootzakker.Server.Tests
         {
             var game = DealFourPlayerGame();
             game = PlayGameUntilEnded(game);
-            Assert.Equal(1, game.Players.Count(pl => pl.CardsInHand.Length!=0));
+            Assert.Equal(1, game.Players.Count(pl => pl.CardsInHand.Length != 0));
         }
 
         [Fact]
@@ -225,15 +235,6 @@ namespace Klootzakker.Server.Tests
             var game = DealFourPlayerGame();
             game = PlayGameUntilEnded(game);
             Assert.All(game.Players, pl => Assert.Equal(pl.PossibleActions, Play.PassOnly));
-        }
-
-        [Fact]
-        public void WhenOnePlayerPassesInEndedGamePhaseBecomesSwapping()
-        {
-            var game = DealFourPlayerGame();
-            var endedGame = PlayGameUntilEnded(game);
-            var swappingGame = endedGame.WhenPlaying(Play.Pass);
-            Assert.Equal(GamePhase.SwappingCards, swappingGame.Phase);
         }
 
         [Fact]
@@ -258,17 +259,6 @@ namespace Klootzakker.Server.Tests
             Assert.Equal(1, game.Players.Count(pl => pl.NewRank == Rank.Klootzak));
         }
 
-        private static GameState PlayGameUntilEnded(GameState game)
-        {
-            var endedGame = game;
-            while (endedGame.Phase != GamePhase.Ended)
-            {
-                var activePlayer = endedGame.Players.First(pl => pl.PossibleActions.Length > 0);
-                endedGame = endedGame.WhenPlaying(activePlayer.PossibleActions[0]);
-            }
-            return endedGame;
-        }
-
         [Fact]
         public void ActivePlayerAlwaysHasPossibleActions()
         {
@@ -279,6 +269,47 @@ namespace Klootzakker.Server.Tests
                 Assert.True(activePlayer.PossibleActions.Length > 0);
                 game = game.WhenPlaying(activePlayer.PossibleActions[0]);
             }
+        }
+
+        [Fact]
+        public void WhenOnePlayerPassesInEndedGamePhaseBecomesSwapping()
+        {
+            var endedGame = CreateEndedGame;
+            var swappingGame = endedGame.WhenPlaying(Play.Pass);
+            Assert.Equal(GamePhase.SwappingCards, swappingGame.Phase);
+        }
+
+        [Fact]
+        public void SwappingGameHasCorrectOptions()
+        {
+            var game = CreateSwappingFivePlayerGame;
+            var president = game.Players.Single(pl => pl.NewRank == Rank.President);
+            var vicePresident = game.Players.Single(pl => pl.NewRank == Rank.VicePresident);
+            var neutraal = game.Players.Single(pl => pl.NewRank == Rank.Neutraal);
+            var viezeKlootzak = game.Players.Single(pl => pl.NewRank == Rank.ViezeKlootzak);
+            var klootzak = game.Players.Single(pl => pl.NewRank == Rank.Klootzak);
+            Assert.Equal(president.CardsInHand.Select(c => c.Value).OrderBy(c => c).Take(2), president.PossibleActions[0].PlayedCards.Select(c => c.Value).OrderBy(c => c));
+            Assert.Equal(vicePresident.CardsInHand.Select(c => c.Value).OrderBy(c => c).Take(1), vicePresident.PossibleActions[0].PlayedCards.Select(c => c.Value).OrderBy(c => c));
+            Assert.Equal(Play.PassOnly, neutraal.PossibleActions);
+            Assert.Equal(viezeKlootzak.CardsInHand.Select(c => c.Value).OrderByDescending(c => c).Take(1), viezeKlootzak.PossibleActions[0].PlayedCards.Select(c => c.Value).OrderByDescending(c => c));
+            Assert.Equal(klootzak.CardsInHand.Select(c => c.Value).OrderByDescending(c => c).Take(2), klootzak.PossibleActions[0].PlayedCards.Select(c => c.Value).OrderByDescending(c => c));
+        }
+
+        #region Helpers
+
+        private static GameState CreateEndedGame => PlayGameUntilEnded(DealFourPlayerGame());
+        private static GameState CreateSwappingGame => CreateEndedGame.WhenPlaying(Play.Pass);
+        private static GameState CreateSwappingFivePlayerGame => PlayGameUntilEnded(DealFivePlayerGame()).WhenPlaying(Play.Pass);
+
+        private static GameState PlayGameUntilEnded(GameState game)
+        {
+            var endedGame = game;
+            while (endedGame.Phase != GamePhase.Ended)
+            {
+                var activePlayer = endedGame.Players.First(pl => pl.PossibleActions.Length > 0);
+                endedGame = endedGame.WhenPlaying(activePlayer.PossibleActions[0]);
+            }
+            return endedGame;
         }
 
         private static Card[] HandOfOnlySingles
@@ -303,7 +334,13 @@ namespace Klootzakker.Server.Tests
             {
                 return Enumerable.Range(7, 3)
                     .Cast<CardValue>()
-                    .SelectMany(v => new[] { new Card(CardSuit.Hearts, v), new Card(CardSuit.Diamonds, v), new Card(CardSuit.Spades, v) })
+                    .SelectMany(
+                        v =>
+                            new[]
+                            {
+                                new Card(CardSuit.Hearts, v), new Card(CardSuit.Diamonds, v),
+                                new Card(CardSuit.Spades, v)
+                            })
                     .Take(8)
                     .ToArray();
             }
@@ -315,7 +352,13 @@ namespace Klootzakker.Server.Tests
             {
                 return Enumerable.Range(7, 2)
                     .Cast<CardValue>()
-                    .SelectMany(v => new[] { new Card(CardSuit.Hearts, v), new Card(CardSuit.Diamonds, v), new Card(CardSuit.Spades, v), new Card(CardSuit.Clubs, v) })
+                    .SelectMany(
+                        v =>
+                            new[]
+                            {
+                                new Card(CardSuit.Hearts, v), new Card(CardSuit.Diamonds, v),
+                                new Card(CardSuit.Spades, v), new Card(CardSuit.Clubs, v)
+                            })
                     .ToArray();
             }
         }
@@ -329,16 +372,18 @@ namespace Klootzakker.Server.Tests
 
         private static GameState DealFivePlayerGame()
         {
-            var lobby = new Lobby(new[] { "HDB", "HDS", "HDM", "HDb", "HDK" });
+            var lobby = new Lobby(new[] {"HDB", "HDS", "HDM", "HDb", "HDK"});
             var actual = lobby.DealFirstGame();
             return actual;
         }
 
         private static GameState DealThreePlayerGame()
         {
-            var lobby = new Lobby(new[] { "HDB", "HDS", "HDM" });
+            var lobby = new Lobby(new[] {"HDB", "HDS", "HDM"});
             var actual = lobby.DealFirstGame();
             return actual;
         }
+
+        #endregion
     }
 }

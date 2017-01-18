@@ -40,14 +40,19 @@ namespace Klootzakken.Server
             var playerCount = game.Players.Length;
             int ignorePlayerThatGotLowestCard;
             var deal = DealCards(playerCount, out ignorePlayerThatGotLowestCard);
-            var players = game.Players.Select((pl,i) => pl.WithCardExchangeOptions(deal[i])).ToArray();
+            var players = game.Players.Select((pl,i) => pl.WithNewHand(deal[i]).WithCardExchangeOptions()).ToArray();
             return new GameState(players);
         }
 
-        private static Player WithCardExchangeOptions(this Player player, IEnumerable<Card> newCardsInHand)
+        private static Player WithNewHand(this Player player, IEnumerable<Card> newCardsInHand)
+        {
+            return new Player(player.Name, new Play[0], newCardsInHand, new Play[0], player.NewRank, null);
+        }
+
+        private static Player WithCardExchangeOptions(this Player player)
         {
             var action = new Play(player.GetCardsToExchange());
-            return new Player(player.Name, new Play[0], newCardsInHand, new[] {action}, player.NewRank, null);
+            return new Player(player.Name, new Play[0], player.CardsInHand, new[] {action}, player.NewRank, null);
         }
 
         public static int FindSingle<T>(this IEnumerable<T> src, Predicate<T> which) => src.Select((item, i) => which(item) ? i : -1).Single(i => i >= 0);
