@@ -9,6 +9,8 @@ namespace Klootzakken.Server
     {
         public static Card[] TopDownDeck { get; } = CreateTopDownDeck().AsArray();
 
+        private static Random RandomGenerator { get; } = new Random();
+
         private static IEnumerable<Card> CreateTopDownDeck()
         {
             for (var cardValue = CardValue.Ace; cardValue >= CardValue.Two; cardValue--)
@@ -29,7 +31,7 @@ namespace Klootzakken.Server
             var startPlayer = playerThatGotLowestCard;
             var players = lobby.Users
                 .Select((pl, i) => new Player(pl, new Play[0], deal[i].AsArray(), new Play[0], Rank.Unknown, null))
-                .Select((pl, i) => i == startPlayer?pl.WithStartOptions():pl)
+                .Select((pl, i) => i == startPlayer ? pl.WithStartOptions() : pl)
                 .AsArray();
             return new Game(GamePhase.Playing, players, null);
         }
@@ -39,7 +41,7 @@ namespace Klootzakken.Server
             var playerCount = game.Players.Length;
             int ignorePlayerThatGotLowestCard;
             var deal = DealCards(playerCount, out ignorePlayerThatGotLowestCard);
-            var players = game.Players.Select((pl,i) => pl.WithNewHand(deal[i]).WithCardExchangeOptions()).AsArray();
+            var players = game.Players.Select((pl, i) => pl.WithNewHand(deal[i]).WithCardExchangeOptions()).AsArray();
             return new Game(GamePhase.SwappingCards, players, null);
         }
 
@@ -47,7 +49,7 @@ namespace Klootzakken.Server
         {
             var deck = new Stack<Card>(TopDownDeck.Take(8 * playerCount).Reverse());
             var deal = new List<Card>[playerCount];
-            for (int playerNo = 0; playerNo < playerCount; playerNo++)
+            for (var playerNo = 0; playerNo < playerCount; playerNo++)
                 deal[playerNo] = new List<Card>();
 
             playerThatGotLastCard = 0;
@@ -112,7 +114,7 @@ namespace Klootzakken.Server
             return game.Redeal();
         }
 
-        
+
         public static Game WhenPlayingActiveGame(this Game game, User user, Play play)
         {
             var playingPlayerNo = game.FindPlayer(user);
@@ -122,9 +124,7 @@ namespace Klootzakken.Server
 
             var changedPlayer = playingPlayer.ThatPlayed(play);
             if (!changedPlayer.CardsInHand.Any())
-            {
                 changedPlayer = changedPlayer.WithNewRank(game.NextRank());
-            }
 
             var tempPlayers = game.Players.ReplacePlayer(changedPlayer).AsArray();
 
@@ -149,8 +149,13 @@ namespace Klootzakken.Server
             var newActivePlayer = nextPlayer;
             if (roundEnded)
             {
-                var players = tempPlayers.Select((pl, i) => pl.NewRank != Rank.Unknown ? pl : i == newActivePlayer ? pl.WithStartOptions() : pl.StartNewRound())
-                    .AsArray();
+                var players =
+                    tempPlayers.Select(
+                            (pl, i) =>
+                                pl.NewRank != Rank.Unknown
+                                    ? pl
+                                    : i == newActivePlayer ? pl.WithStartOptions() : pl.StartNewRound())
+                        .AsArray();
                 var newTopCard = lastProperPlay.PlayedCards.Last();
 
                 return new Game(GamePhase.Playing, players, newTopCard);
@@ -163,8 +168,6 @@ namespace Klootzakken.Server
                 return new Game(GamePhase.Playing, players, game.CenterCard);
             }
         }
-
-        private static Random RandomGenerator { get; } = new Random();
 
         private static int Random(int playerCount)
         {
