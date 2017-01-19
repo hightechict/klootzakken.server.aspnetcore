@@ -52,13 +52,14 @@
     <Compile Include="Model\CardSuit.cs" />
     <Compile Include="Model\CardValue.cs" />
     <Compile Include="Model\GamePhase.cs" />
-    <Compile Include="Model\GameState.cs" />
+    <Compile Include="Model\Game.cs" />
     <Compile Include="Model\Lobby.cs" />
     <Compile Include="ApiModel\PlayerBase.cs" />
     <Compile Include="Model\Play.cs" />
     <Compile Include="Model\Player.cs" />
     <Compile Include="Model\Rank.cs" />
     <Compile Include="Model\User.cs" />
+    <Compile Include="PlayerExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

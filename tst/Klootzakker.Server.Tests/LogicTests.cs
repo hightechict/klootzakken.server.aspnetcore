@@ -368,11 +368,11 @@ namespace Klootzakker.Server.Tests
 
         #region Helpers
 
-        private static GameState CreateEndedGame => PlayGameUntilEnded(DealFourPlayerGame());
-        private static GameState CreateSwappingGame => CreateEndedGame.WhenPlayingFirst(Play.Pass);
-        private static GameState CreateSwappingFivePlayerGame => PlayGameUntilEnded(DealFivePlayerGame()).WhenPlayingFirst(Play.Pass);
+        private static Game CreateEndedGame => PlayGameUntilEnded(DealFourPlayerGame());
+        private static Game CreateSwappingGame => CreateEndedGame.WhenPlayingFirst(Play.Pass);
+        private static Game CreateSwappingFivePlayerGame => PlayGameUntilEnded(DealFivePlayerGame()).WhenPlayingFirst(Play.Pass);
 
-        private static GameState PlayGameUntilEnded(GameState game)
+        private static Game PlayGameUntilEnded(Game game)
         {
             while (game.Phase != GamePhase.Ended)
             {
@@ -433,21 +433,21 @@ namespace Klootzakker.Server.Tests
             }
         }
 
-        private static GameState DealFourPlayerGame()
+        private static Game DealFourPlayerGame()
         {
             var lobby = CreateLobby(4);
             var actual = lobby.DealFirstGame();
             return actual;
         }
 
-        private static GameState DealFivePlayerGame()
+        private static Game DealFivePlayerGame()
         {
             var lobby = CreateLobby(5);
             var actual = lobby.DealFirstGame();
             return actual;
         }
 
-        private static GameState DealThreePlayerGame()
+        private static Game DealThreePlayerGame()
         {
             var lobby = CreateLobby(3);
             var actual = lobby.DealFirstGame();
@@ -459,12 +459,12 @@ namespace Klootzakker.Server.Tests
 
     public static class ExtHelpers
     {
-        public static GameState WhenPlayingActive(this GameState game, Play play)
+        public static Game WhenPlayingActive(this Game game, Play play)
         {
             return game.WhenPlaying(game.Players[game.ActivePlayer].User, play);
         }
 
-        public static GameState WhenPlayingFirst(this GameState game, Play play)
+        public static Game WhenPlayingFirst(this Game game, Play play)
         {
             return game.WhenPlaying(game.Players[0].User, play);
         }

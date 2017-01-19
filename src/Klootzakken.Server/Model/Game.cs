@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace Klootzakken.Server.Model
 {
-    public class GameState
+    public class Game
     {
-        public GameState(GamePhase phase, IEnumerable<Player> players, Card centerCard)
+        public Game(GamePhase phase, IEnumerable<Player> players, Card centerCard)
         {
             CenterCard = centerCard;
             Players = players.AsArray();
