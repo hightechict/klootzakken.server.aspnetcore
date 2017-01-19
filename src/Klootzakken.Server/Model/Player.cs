@@ -8,11 +8,11 @@ namespace Klootzakken.Server.Model
         public Player(User user, IEnumerable<Play> playsThisRound, IEnumerable<Card> cardsInHand, IEnumerable<Play> possibleActions, Rank newRank, Play exchangedCards)
         {
             User = user;
-            PlaysThisRound = playsThisRound.ToArray();
+            PlaysThisRound = playsThisRound.AsArray();
             NewRank = newRank;
             ExchangedCards = exchangedCards;
-            CardsInHand = cardsInHand.OrderBy(c => c.Value).ToArray();
-            PossibleActions = possibleActions.ToArray();
+            CardsInHand = cardsInHand.OrderBy(c => c.Value).AsArray();
+            PossibleActions = possibleActions.AsArray();
         }
 
         public User User { get; }

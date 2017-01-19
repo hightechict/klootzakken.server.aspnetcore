@@ -29,7 +29,7 @@ namespace Klootzakken.Server.Model
 
         public Play(IEnumerable<Card> playedCards)
         {
-            PlayedCards = playedCards.ToArray();
+            PlayedCards = playedCards.AsArray();
         }
 
         public Card[] PlayedCards { get; }

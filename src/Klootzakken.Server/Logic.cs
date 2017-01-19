@@ -7,7 +7,7 @@ namespace Klootzakken.Server
 {
     public static class Logic
     {
-        public static Card[] TopDownDeck { get; } = CreateTopDownDeck().ToArray();
+        public static Card[] TopDownDeck { get; } = CreateTopDownDeck().AsArray();
 
         private static IEnumerable<Card> CreateTopDownDeck()
         {
@@ -28,9 +28,9 @@ namespace Klootzakken.Server
 
             var startPlayer = playerThatGotLowestCard;
             var players = lobby.Users
-                .Select((pl, i) => new Player(pl, new Play[0], deal[i].ToArray(), new Play[0], Rank.Unknown, null))
+                .Select((pl, i) => new Player(pl, new Play[0], deal[i].AsArray(), new Play[0], Rank.Unknown, null))
                 .Select((pl, i) => i == startPlayer?pl.WithStartOptions():pl)
-                .ToArray();
+                .AsArray();
             return new GameState(GamePhase.Playing, players, null);
         }
 
@@ -39,7 +39,7 @@ namespace Klootzakken.Server
             var playerCount = game.Players.Length;
             int ignorePlayerThatGotLowestCard;
             var deal = DealCards(playerCount, out ignorePlayerThatGotLowestCard);
-            var players = game.Players.Select((pl,i) => pl.WithNewHand(deal[i]).WithCardExchangeOptions()).ToArray();
+            var players = game.Players.Select((pl,i) => pl.WithNewHand(deal[i]).WithCardExchangeOptions()).AsArray();
             return new GameState(GamePhase.SwappingCards, players, null);
         }
 
@@ -53,8 +53,6 @@ namespace Klootzakken.Server
             var action = new Play(player.GetCardsToExchange());
             return new Player(player.User, new Play[0], player.CardsInHand, new[] {action}, player.NewRank, null);
         }
-
-        public static int FindSingle<T>(this IEnumerable<T> src, Predicate<T> which) => src.Select((item, i) => which(item) ? i : -1).Single(i => i >= 0);
 
         private static IEnumerable<Card> GetCardsToExchange(this Player player)
         {
@@ -76,8 +74,6 @@ namespace Klootzakken.Server
                     throw new ArgumentOutOfRangeException();
             }
         }
-
-        private static IEnumerable<T> TakeLast<T>(this ICollection<T> src, int count) => src.Skip(src.Count - count);
 
         private static List<Card>[] DealCards(int playerCount, out int playerForCard)
         {
@@ -134,12 +130,12 @@ namespace Klootzakken.Server
         public static GameState WhenPlayingSwappingGame(this GameState game, User user, Play play)
         {
             var playerAfterPlay = game.GetPlayer(user).ThatSwapped();
-            var newPlayers = game.Players.ReplacePlayer(playerAfterPlay).ToArray();
+            var newPlayers = game.Players.ReplacePlayer(playerAfterPlay).AsArray();
             var thisWasNotTheLastPlayerToSwap = game.Players.Count(pl => pl.PossibleActions.Length != 0) > 1;
             if (thisWasNotTheLastPlayerToSwap)
                 return new GameState(GamePhase.SwappingCards, newPlayers, null);
 
-            var startPlayers = newPlayers.Select(pl => pl.TakeSwappedCards(newPlayers)).ToArray();
+            var startPlayers = newPlayers.Select(pl => pl.TakeSwappedCards(newPlayers)).AsArray();
             return new GameState(GamePhase.Playing, startPlayers, null);
         }
 
@@ -199,7 +195,7 @@ namespace Klootzakken.Server
                 changedPlayer = changedPlayer.WithNewRank(game.NextRank());
             }
 
-            var tempPlayers = game.Players.ReplacePlayer(changedPlayer).ToArray();
+            var tempPlayers = game.Players.ReplacePlayer(changedPlayer).AsArray();
 
             var stillPlaying = tempPlayers.Where(pl => pl.NewRank == Rank.Unknown).ToList();
             if (stillPlaying.Count == 1)
@@ -223,7 +219,7 @@ namespace Klootzakken.Server
             if (roundEnded)
             {
                 var players = tempPlayers.Select((pl, i) => pl.NewRank != Rank.Unknown ? pl : i == newActivePlayer ? pl.WithStartOptions() : pl.StartNewRound())
-                    .ToArray();
+                    .AsArray();
                 var newTopCard = lastProperPlay.PlayedCards.Last();
 
                 return new GameState(GamePhase.Playing, players, newTopCard);
@@ -231,7 +227,7 @@ namespace Klootzakken.Server
             else
             {
                 var players = tempPlayers.Select((pl, i) => i == newActivePlayer ? pl.WithOptions(lastProperPlay) : pl)
-                    .ToArray();
+                    .AsArray();
 
                 return new GameState(GamePhase.Playing, players, game.CenterCard);
             }
@@ -254,12 +250,7 @@ namespace Klootzakken.Server
 
         public static Player ThatPlayed(this Player player, Play play)
         {
-            return new Player(player.User, player.PlaysThisRound.Concat(play).ToArray(), player.CardsInHand.Except(play.PlayedCards).ToArray(), new Play[0], Rank.Unknown, null);
-        }
-
-        public static IEnumerable<T> Concat<T>(this IEnumerable<T> src, T item)
-        {
-            return src.Concat(Enumerable.Repeat(item, 1));
+            return new Player(player.User, player.PlaysThisRound.Concat(play).AsArray(), player.CardsInHand.Except(play.PlayedCards).AsArray(), new Play[0], Rank.Unknown, null);
         }
 
         public static Player WithStartOptions(this Player player)
@@ -286,7 +277,7 @@ namespace Klootzakken.Server
                 .SelectMany( AllPermutations)
                 .Select( cardArray => new Play(cardArray))
                 .Distinct()
-                .ToArray();
+                .AsArray();
         }
 
         public static Play[] Options(this Card[] cardsInHand, Play lastProperPlay)
@@ -299,30 +290,31 @@ namespace Klootzakken.Server
                 .Select(cardArray => new Play(cardArray))
                 .Distinct()
                 .Concat(Play.PassOnly)
-                .ToArray();
+                .AsArray();
         }
 
         private static IEnumerable<Card[]> AllPermutations(IEnumerable<Card> cardsOfSameValue)
         {
-            var cards = cardsOfSameValue.ToArray();
+            var cards = cardsOfSameValue.AsArray();
+
             // Individual Cards
             foreach (var card in cards)
                 yield return new[] {card};
 
-            if (cards.Length != 1)
+            if (cards.Length >= 2)
                 // All Cards
                 yield return cards;
 
             if (cards.Length >= 3)
                 // Skip only one
-                for (int q = 0; q < cards.Length; q++)
-                    yield return cards.Take(q).Concat(cards.Skip(q + 1)).ToArray();
+                for (var q = 0; q < cards.Length; q++)
+                    yield return cards.Take(q).Concat(cards.Skip(q + 1)).AsArray();
 
             if (cards.Length == 4)
                 // Take Two out of Four
-                for (int q = 0; q < cards.Length; q++)
-                for (int w = q + 1; w < cards.Length; w++)
-                    yield return cards.Skip(q).Take(1).Concat(cards.Skip(w).Take(1)).ToArray();
+                for (var q = 0; q < cards.Length; q++)
+                for (var w = q + 1; w < cards.Length; w++)
+                    yield return cards.Skip(q).Take(1).Concat(cards.Skip(w).Take(1)).AsArray();
         }
 
         private static Random RandomGenerator { get; } = new Random();

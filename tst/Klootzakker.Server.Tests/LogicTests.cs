@@ -384,7 +384,7 @@ namespace Klootzakker.Server.Tests
 
         private static Card[] HandOfOnlySingles
         {
-            get { return Enumerable.Range(7, 8).Cast<CardValue>().Select(v => new Card(CardSuit.Hearts, v)).ToArray(); }
+            get { return Enumerable.Range(7, 8).Cast<CardValue>().Select(v => new Card(CardSuit.Hearts, v)).AsArray(); }
         }
 
         private static Card[] HandOfFourPairs
@@ -394,7 +394,7 @@ namespace Klootzakker.Server.Tests
                 return Enumerable.Range(7, 4)
                     .Cast<CardValue>()
                     .SelectMany(v => new[] {new Card(CardSuit.Hearts, v), new Card(CardSuit.Spades, v)})
-                    .ToArray();
+                    .AsArray();
             }
         }
 
@@ -412,7 +412,7 @@ namespace Klootzakker.Server.Tests
                                 new Card(CardSuit.Spades, v)
                             })
                     .Take(8)
-                    .ToArray();
+                    .AsArray();
             }
         }
 
@@ -429,7 +429,7 @@ namespace Klootzakker.Server.Tests
                                 new Card(CardSuit.Hearts, v), new Card(CardSuit.Diamonds, v),
                                 new Card(CardSuit.Spades, v), new Card(CardSuit.Clubs, v)
                             })
-                    .ToArray();
+                    .AsArray();
             }
         }
 

@@ -9,7 +9,7 @@ namespace Klootzakken.Server.Model
         public GameState(GamePhase phase, IEnumerable<Player> players, Card centerCard)
         {
             CenterCard = centerCard;
-            Players = players.ToArray();
+            Players = players.AsArray();
             Phase = phase;
 
             switch (Phase)

@@ -7,7 +7,7 @@ namespace Klootzakken.Server.Model
     {
         public Lobby(IEnumerable<User> users)
         {
-            Users = users.ToArray();
+            Users = users.AsArray();
         }
 
         public User[] Users { get; }

@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="ApiModel\OtherPlayer.cs" />
     <Compile Include="ApiModel\You.cs" />
+    <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="Logic.cs" />
     <Compile Include="Model\Card.cs" />
     <Compile Include="Model\CardSuit.cs" />
