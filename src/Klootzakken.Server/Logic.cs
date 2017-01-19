@@ -47,24 +47,28 @@ namespace Klootzakken.Server
 
         private static List<Card>[] DealCards(int playerCount, out int playerThatGotLastCard)
         {
-            var deck = new Stack<Card>(TopDownDeck.Take(8 * playerCount).Reverse());
+            if (playerCount < 2 || playerCount > 6)
+                throw new ArgumentOutOfRangeException(nameof(playerCount), "Between 2 and 6 players supported");
+
+            var deck = new Stack<Card>(TopDownDeck.Take(8*playerCount).Reverse());
             var deal = new List<Card>[playerCount];
             for (var playerNo = 0; playerNo < playerCount; playerNo++)
                 deal[playerNo] = new List<Card>();
 
-            playerThatGotLastCard = 0;
+            var player = 0;
             while (deck.Count != 0)
             {
                 var dealtCard = deck.Pop();
                 while (true)
                 {
-                    playerThatGotLastCard = Random(playerCount);
-                    if (deal[playerThatGotLastCard].Count == 8)
+                    player = Random(playerCount);
+                    if (deal[player].Count == 8)
                         continue;
-                    deal[playerThatGotLastCard].Add(dealtCard);
+                    deal[player].Add(dealtCard);
                     break;
                 }
             }
+            playerThatGotLastCard = player;
             return deal;
         }
 
