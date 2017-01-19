@@ -44,6 +44,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiModel\GameView.cs" />
+    <Compile Include="ApiModel\IUserApi.cs" />
+    <Compile Include="ApiModel\LobbyView.cs" />
     <Compile Include="ApiModel\OtherPlayer.cs" />
     <Compile Include="ApiModel\You.cs" />
     <Compile Include="EnumerableExtensions.cs" />
