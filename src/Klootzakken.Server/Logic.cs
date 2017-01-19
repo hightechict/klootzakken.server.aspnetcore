@@ -22,6 +22,18 @@ namespace Klootzakken.Server
             }
         }
 
+        public static Lobby Join(this Lobby lobby, User user)
+        {
+            return new Lobby(lobby.Users.Concat(user));
+        }
+
+        public static Lobby Leave(this Lobby lobby, User user)
+        {
+            if (!lobby.Users.Contains(user))
+                throw new ArgumentOutOfRangeException(nameof(user), "No such user");
+            return new Lobby(lobby.Users.Where(u => !Equals(u, user)));
+        }
+
         public static Game DealFirstGame(this Lobby lobby)
         {
             var playerCount = lobby.Users.Length;
