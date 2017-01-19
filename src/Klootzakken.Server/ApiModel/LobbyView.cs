@@ -8,5 +8,6 @@ namespace Klootzakken.Server.ApiModel
         public string Name { get; }
         public User Owner { get; }
         public User[] AllUsers { get; }
+        public bool Public { get; }
     }
 }
