@@ -18,6 +18,17 @@ namespace Klootzakken.Server
             return new Player(player.User, new Play[0], player.CardsInHand, new[] { action }, player.NewRank, null);
         }
 
+        public static Rank NextRank(this IEnumerable<Player> playersx)
+        {
+            var players = playersx.AsArray();
+            var position = players.Count(pl => pl.NewRank != Rank.Unknown) + 1;
+            if (position == 1) return Rank.President;
+            if (position == 2 && players.Length >= 4) return Rank.VicePresident;
+            if (position == players.Length - 1 && players.Length >= 4) return Rank.ViezeKlootzak;
+            if (position == players.Length) return Rank.Klootzak;
+            return Rank.Neutraal;
+        }
+
         public static IEnumerable<Card> GetCardsToExchange(this Player player)
         {
             switch (player.NewRank)

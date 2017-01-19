@@ -68,16 +68,6 @@ namespace Klootzakken.Server
             return deal;
         }
 
-        public static Rank NextRank(this Game game)
-        {
-            var position = game.Players.Count(pl => pl.NewRank != Rank.Unknown) + 1;
-            if (position == 1) return Rank.President;
-            if (position == 2 && game.Players.Length >= 4) return Rank.VicePresident;
-            if (position == game.Players.Length - 1 && game.Players.Length >= 4) return Rank.ViezeKlootzak;
-            if (position == game.Players.Length) return Rank.Klootzak;
-            return Rank.Neutraal;
-        }
-
         public static Game WhenPlaying(this Game game, User player, Play play)
         {
             switch (game.Phase)
@@ -97,13 +87,19 @@ namespace Klootzakken.Server
 
         public static Game WhenPlayingSwappingGame(this Game game, User user, Play play)
         {
-            var playerAfterPlay = game.GetPlayer(user).ThatSwapped();
+            var playingPlayer = game.GetPlayer(user);
+
+            if (!playingPlayer.PossibleActions.Contains(play))
+                throw new InvalidOperationException();
+
+            var playerAfterPlay = playingPlayer.ThatSwapped();
             var newPlayers = game.Players.ReplacePlayer(playerAfterPlay).AsArray();
+
             var thisWasNotTheLastPlayerToSwap = game.Players.Count(pl => pl.PossibleActions.Length != 0) > 1;
             if (thisWasNotTheLastPlayerToSwap)
                 return new Game(GamePhase.SwappingCards, newPlayers, null);
 
-            var startPlayers = newPlayers.Select(pl => pl.TakeSwappedCards(newPlayers)).AsArray();
+            var startPlayers = newPlayers.Select(pl => pl.TakeSwappedCards(newPlayers));
             return new Game(GamePhase.Playing, startPlayers, null);
         }
 
@@ -114,7 +110,6 @@ namespace Klootzakken.Server
             return game.Redeal();
         }
 
-
         public static Game WhenPlayingActiveGame(this Game game, User user, Play play)
         {
             var playingPlayerNo = game.FindPlayer(user);
@@ -124,7 +119,7 @@ namespace Klootzakken.Server
 
             var changedPlayer = playingPlayer.ThatPlayed(play);
             if (!changedPlayer.CardsInHand.Any())
-                changedPlayer = changedPlayer.WithNewRank(game.NextRank());
+                changedPlayer = changedPlayer.WithNewRank(game.Players.NextRank());
 
             var tempPlayers = game.Players.ReplacePlayer(changedPlayer).AsArray();
 
