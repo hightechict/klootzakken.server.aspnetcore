@@ -174,12 +174,12 @@ namespace Klootzakker.Server.Tests
         public void FollowPlayersHaveOptionToPass()
         {
             var game = DealFourPlayerGame();
-            var iter = game.WhenPlaying(game.Players[game.ActivePlayer].PossibleActions[0]);
+            var iter = game.WhenPlaying(game.Players[game.ActivePlayer].User, game.Players[game.ActivePlayer].PossibleActions[0]);
             for (int q = 1; q <= 3; q++)
             {
                 Assert.Equal((game.ActivePlayer + q) % 4, iter.ActivePlayer);
                 Assert.Contains(Play.Pass, iter.Players[iter.ActivePlayer].PossibleActions);
-                iter = iter.WhenPlaying(Play.Pass);
+                iter = iter.WhenPlaying(iter.Players[iter.ActivePlayer].User, Play.Pass);
             }
         }
 
@@ -187,10 +187,10 @@ namespace Klootzakker.Server.Tests
         public void StartPlayerWinsHandIfThreePlayersPass()
         {
             var game = DealFourPlayerGame();
-            var firstPlayed = game.WhenPlaying(game.Players[game.ActivePlayer].PossibleActions[0]);
-            var onePassed = firstPlayed.WhenPlaying(Play.Pass);
-            var twoPassed = onePassed.WhenPlaying(Play.Pass);
-            var threePassed = twoPassed.WhenPlaying(Play.Pass);
+            var firstPlayed = game.WhenPlaying(game.Players[game.ActivePlayer].User, game.Players[game.ActivePlayer].PossibleActions[0]);
+            var onePassed = firstPlayed.WhenPlayingActive(Play.Pass);
+            var twoPassed = onePassed.WhenPlayingActive(Play.Pass);
+            var threePassed = twoPassed.WhenPlayingActive(Play.Pass);
             Assert.Equal(game.ActivePlayer, threePassed.ActivePlayer);
             Assert.DoesNotContain(Play.Pass, threePassed.Players[threePassed.ActivePlayer].PossibleActions);
         }
@@ -199,13 +199,13 @@ namespace Klootzakker.Server.Tests
         public void SecondPlayerWinsHandIfThreePlayersPass()
         {
             var game = DealFourPlayerGame();
-            var firstPlayed = game.WhenPlaying(game.Players[game.ActivePlayer].PossibleActions[0]);
+            var firstPlayed = game.WhenPlayingActive(game.Players[game.ActivePlayer].PossibleActions[0]);
             var secondPlayed =
-                firstPlayed.WhenPlaying(
+                firstPlayed.WhenPlayingActive(
                     firstPlayed.Players[firstPlayed.ActivePlayer].PossibleActions.First(pl => !pl.IsPass));
-            var onePassed = secondPlayed.WhenPlaying(Play.Pass);
-            var twoPassed = onePassed.WhenPlaying(Play.Pass);
-            var threePassed = twoPassed.WhenPlaying(Play.Pass);
+            var onePassed = secondPlayed.WhenPlayingActive(Play.Pass);
+            var twoPassed = onePassed.WhenPlayingActive(Play.Pass);
+            var threePassed = twoPassed.WhenPlayingActive(Play.Pass);
             Assert.Equal(firstPlayed.ActivePlayer, threePassed.ActivePlayer);
             Assert.DoesNotContain(Play.Pass, threePassed.Players[threePassed.ActivePlayer].PossibleActions);
         }
@@ -267,7 +267,7 @@ namespace Klootzakker.Server.Tests
             {
                 var activePlayer = game.Players[game.ActivePlayer];
                 Assert.True(activePlayer.PossibleActions.Length > 0);
-                game = game.WhenPlaying(activePlayer.PossibleActions[0]);
+                game = game.WhenPlaying(activePlayer.User, activePlayer.PossibleActions[0]);
             }
         }
 
@@ -275,7 +275,7 @@ namespace Klootzakker.Server.Tests
         public void WhenOnePlayerPassesInEndedGamePhaseBecomesSwapping()
         {
             var endedGame = CreateEndedGame;
-            var swappingGame = endedGame.WhenPlaying(Play.Pass);
+            var swappingGame = endedGame.WhenPlayingFirst(Play.Pass);
             Assert.Equal(GamePhase.SwappingCards, swappingGame.Phase);
         }
 
@@ -300,7 +300,7 @@ namespace Klootzakker.Server.Tests
         {
             var game = CreateSwappingGame;
             var player0Action = game.Players[0].PossibleActions[0];
-            var afterOnePlay = game.WhenPlaying(player0Action);
+            var afterOnePlay = game.WhenPlayingFirst(player0Action);
             var player0 = afterOnePlay.Players[0];
             Assert.Equal(GamePhase.SwappingCards, afterOnePlay.Phase);
             Assert.Empty(player0.PossibleActions);
@@ -317,8 +317,9 @@ namespace Klootzakker.Server.Tests
             var numberOfActionsPlayed = 0;
             while (game.Phase == GamePhase.SwappingCards)
             {
-                var anAction = game.Players.First(pl => pl.PossibleActions.Length == 1).PossibleActions[0];
-                game = game.WhenPlaying(anAction);
+                var anActivePlayer = game.Players.First(pl => pl.PossibleActions.Length == 1);
+                var anAction = anActivePlayer.PossibleActions[0];
+                game = game.WhenPlaying(anActivePlayer.User, anAction);
                 numberOfActionsPlayed++;
             }
             Assert.Equal(GamePhase.Playing, game.Phase);
@@ -335,29 +336,50 @@ namespace Klootzakker.Server.Tests
             var numberOfActionsPlayed = 0;
             while (game.Phase == GamePhase.SwappingCards)
             {
-                var anAction = game.Players.First(pl => pl.PossibleActions.Length==1).PossibleActions[0];
-                game = game.WhenPlaying(anAction);
+                var anActivePlayer = game.Players.First(pl => pl.PossibleActions.Length==1);
+                var anAction = anActivePlayer.PossibleActions[0];
+                game = game.WhenPlaying(anActivePlayer.User, anAction);
                 numberOfActionsPlayed++;
             }
             Assert.Equal(GamePhase.Playing, game.Phase);
             Assert.Equal(5, numberOfActionsPlayed);
         }
 
+        [Fact]
+        public void WhenAllSixPlayersHaveSwappedGameBecomesPlaying()
+        {
+            var game = PlayGameUntilEnded(CreateLobby(6).DealFirstGame()).WhenPlayingFirst(Play.Pass);
+            var numberOfActionsPlayed = 0;
+            while (game.Phase == GamePhase.SwappingCards)
+            {
+                var anActivePlayer = game.Players.First(pl => pl.PossibleActions.Length == 1);
+                var anAction = anActivePlayer.PossibleActions[0];
+                game = game.WhenPlaying(anActivePlayer.User, anAction);
+                numberOfActionsPlayed++;
+            }
+            Assert.Equal(GamePhase.Playing, game.Phase);
+            Assert.Equal(6, numberOfActionsPlayed);
+        }
+
+        private static Lobby CreateLobby(int numberOfUsers)
+        {
+            return new Lobby( Enumerable.Range(0,numberOfUsers).Select( i => new User($"{i}", $"Player {i+1}" )));
+        }
+
         #region Helpers
 
         private static GameState CreateEndedGame => PlayGameUntilEnded(DealFourPlayerGame());
-        private static GameState CreateSwappingGame => CreateEndedGame.WhenPlaying(Play.Pass);
-        private static GameState CreateSwappingFivePlayerGame => PlayGameUntilEnded(DealFivePlayerGame()).WhenPlaying(Play.Pass);
+        private static GameState CreateSwappingGame => CreateEndedGame.WhenPlayingFirst(Play.Pass);
+        private static GameState CreateSwappingFivePlayerGame => PlayGameUntilEnded(DealFivePlayerGame()).WhenPlayingFirst(Play.Pass);
 
         private static GameState PlayGameUntilEnded(GameState game)
         {
-            var endedGame = game;
-            while (endedGame.Phase != GamePhase.Ended)
+            while (game.Phase != GamePhase.Ended)
             {
-                var activePlayer = endedGame.Players.First(pl => pl.PossibleActions.Length > 0);
-                endedGame = endedGame.WhenPlaying(activePlayer.PossibleActions[0]);
+                var activePlayer = game.Players.First(pl => pl.PossibleActions.Length > 0);
+                game = game.WhenPlayingActive(activePlayer.PossibleActions[0]);
             }
-            return endedGame;
+            return game;
         }
 
         private static Card[] HandOfOnlySingles
@@ -413,25 +435,38 @@ namespace Klootzakker.Server.Tests
 
         private static GameState DealFourPlayerGame()
         {
-            var lobby = new Lobby(new[] {"HDB", "HDS", "HDM", "HDb"});
+            var lobby = CreateLobby(4);
             var actual = lobby.DealFirstGame();
             return actual;
         }
 
         private static GameState DealFivePlayerGame()
         {
-            var lobby = new Lobby(new[] {"HDB", "HDS", "HDM", "HDb", "HDK"});
+            var lobby = CreateLobby(5);
             var actual = lobby.DealFirstGame();
             return actual;
         }
 
         private static GameState DealThreePlayerGame()
         {
-            var lobby = new Lobby(new[] {"HDB", "HDS", "HDM"});
+            var lobby = CreateLobby(3);
             var actual = lobby.DealFirstGame();
             return actual;
         }
 
         #endregion
+    }
+
+    public static class ExtHelpers
+    {
+        public static GameState WhenPlayingActive(this GameState game, Play play)
+        {
+            return game.WhenPlaying(game.Players[game.ActivePlayer].User, play);
+        }
+
+        public static GameState WhenPlayingFirst(this GameState game, Play play)
+        {
+            return game.WhenPlaying(game.Players[0].User, play);
+        }
     }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.NetworkInformation;
 using Klootzakken.Server.Model;
 
 namespace Klootzakken.Server
@@ -23,16 +22,16 @@ namespace Klootzakken.Server
 
         public static GameState DealFirstGame(this Lobby lobby)
         {
-            var playerCount = lobby.Players.Length;
+            var playerCount = lobby.Users.Length;
             int playerThatGotLowestCard;
             var deal = DealCards(playerCount, out playerThatGotLowestCard);
 
             var startPlayer = playerThatGotLowestCard;
-            var players = lobby.Players
+            var players = lobby.Users
                 .Select((pl, i) => new Player(pl, new Play[0], deal[i].ToArray(), new Play[0], Rank.Unknown, null))
                 .Select((pl, i) => i == startPlayer?pl.WithStartOptions():pl)
                 .ToArray();
-            return new GameState(players, null, startPlayer);
+            return new GameState(GamePhase.Playing, players, null);
         }
 
         public static GameState Redeal(this GameState game)
@@ -41,18 +40,18 @@ namespace Klootzakken.Server
             int ignorePlayerThatGotLowestCard;
             var deal = DealCards(playerCount, out ignorePlayerThatGotLowestCard);
             var players = game.Players.Select((pl,i) => pl.WithNewHand(deal[i]).WithCardExchangeOptions()).ToArray();
-            return new GameState(players);
+            return new GameState(GamePhase.SwappingCards, players, null);
         }
 
         private static Player WithNewHand(this Player player, IEnumerable<Card> newCardsInHand)
         {
-            return new Player(player.Name, new Play[0], newCardsInHand, new Play[0], player.NewRank, null);
+            return new Player(player.User, new Play[0], newCardsInHand, new Play[0], player.NewRank, null);
         }
 
         private static Player WithCardExchangeOptions(this Player player)
         {
             var action = new Play(player.GetCardsToExchange());
-            return new Player(player.Name, new Play[0], player.CardsInHand, new[] {action}, player.NewRank, null);
+            return new Player(player.User, new Play[0], player.CardsInHand, new[] {action}, player.NewRank, null);
         }
 
         public static int FindSingle<T>(this IEnumerable<T> src, Predicate<T> which) => src.Select((item, i) => which(item) ? i : -1).Single(i => i >= 0);
@@ -113,37 +112,42 @@ namespace Klootzakken.Server
             return Rank.Neutraal;
         }
 
-        public static GameState WhenPlaying(this GameState game, Play play)
+        public static GameState WhenPlaying(this GameState game, User player, Play play)
         {
             switch (game.Phase)
             {
                 case GamePhase.Playing:
-                    return game.WhenPlayingActiveGame(play);
+                    return game.WhenPlayingActiveGame(player, play);
                 case GamePhase.Ended:
-                    return game.WhenPlayingEndedGame(play);
+                    return game.WhenPlayingEndedGame(player, play);
                 case GamePhase.SwappingCards:
-                    return game.WhenPlayingSwappingGame(play);
+                    return game.WhenPlayingSwappingGame(player, play);
             }
             throw new ArgumentOutOfRangeException();
         }
 
-        public static GameState WhenPlayingSwappingGame(this GameState game, Play play)
+        public static int FindPlayer(this GameState game, User user) => game.Players.FindSingle(pl => Equals(pl.User, user));
+        public static Player GetPlayer(this GameState game, User user) => game.Players.Single(pl => Equals(pl.User, user));
+
+        public static IEnumerable<Player> ReplacePlayer(this IEnumerable<Player> players, Player replacement) => players.Select(pl => pl.User.Equals(replacement.User) ? replacement : pl);
+
+        public static GameState WhenPlayingSwappingGame(this GameState game, User user, Play play)
         {
-            var playingPlayerNo = game.Players.FindSingle(pl => pl.PossibleActions.Contains(play));
-            var playerAfterPlay = game.Players[playingPlayerNo].ThatSwapped();
-            var newPlayers = game.Players.Select((pl, i) => i == playingPlayerNo ? playerAfterPlay : pl).ToArray();
+            var playerAfterPlay = game.GetPlayer(user).ThatSwapped();
+            var newPlayers = game.Players.ReplacePlayer(playerAfterPlay).ToArray();
             var thisWasNotTheLastPlayerToSwap = game.Players.Count(pl => pl.PossibleActions.Length != 0) > 1;
             if (thisWasNotTheLastPlayerToSwap)
-                return new GameState(newPlayers);
-            var startPlayers = newPlayers.Select(pl => pl.TakeSwappedCards( newPlayers)).ToArray();
-            return new GameState(startPlayers, null, game.ActivePlayer);
+                return new GameState(GamePhase.SwappingCards, newPlayers, null);
+
+            var startPlayers = newPlayers.Select(pl => pl.TakeSwappedCards(newPlayers)).ToArray();
+            return new GameState(GamePhase.Playing, startPlayers, null);
         }
 
         public static Player TakeSwappedCards(this Player player, IEnumerable<Player> allPlayers)
         {
             var oppositeRank = GetOppositeRank(player.NewRank);
             var oppositePlayer = allPlayers.First(pl => pl.NewRank == oppositeRank);
-            var newPlayer = new Player(player.Name, new Play[0],
+            var newPlayer = new Player(player.User, new Play[0],
                 player.CardsInHand.Concat(oppositePlayer.ExchangedCards.PlayedCards), new Play[0], Rank.Unknown, null);
             return player.NewRank == Rank.Klootzak ? newPlayer.WithStartOptions() : newPlayer;
         }
@@ -167,10 +171,10 @@ namespace Klootzakken.Server
         public static Player ThatSwapped(this Player player)
         {
             var swappedCards = player.PossibleActions[0];
-            return new Player(player.Name, new Play[0], player.CardsInHand.Except(swappedCards.PlayedCards), new Play[0], player.NewRank, swappedCards);
+            return new Player(player.User, new Play[0], player.CardsInHand.Except(swappedCards.PlayedCards), new Play[0], player.NewRank, swappedCards);
         }
 
-        public static GameState WhenPlayingEndedGame(this GameState game, Play play)
+        public static GameState WhenPlayingEndedGame(this GameState game, User user, Play play)
         {
             if (!play.IsPass)
                 throw new InvalidOperationException();
@@ -179,29 +183,29 @@ namespace Klootzakken.Server
 
         public static Player WhenGameEnded(this Player player)
         {
-            return new Player(player.Name, player.PlaysThisRound, player.CardsInHand, Play.PassOnly, player.NewRank == Rank.Unknown? Rank.Klootzak : player.NewRank, null);
+            return new Player(player.User, player.PlaysThisRound, player.CardsInHand, Play.PassOnly, player.NewRank == Rank.Unknown? Rank.Klootzak : player.NewRank, null);
         }
 
-        public static GameState WhenPlayingActiveGame(this GameState game, Play play)
+        public static GameState WhenPlayingActiveGame(this GameState game, User user, Play play)
         {
-            var playingPlayerNo = game.ActivePlayer;
+            var playingPlayerNo = game.FindPlayer(user);
             var playingPlayer = game.Players[playingPlayerNo];
             if (!playingPlayer.PossibleActions.Contains(play))
                 throw new InvalidOperationException();
 
-            var temp = playingPlayer.ThatPlayed(play);
-            if (!temp.CardsInHand.Any())
+            var changedPlayer = playingPlayer.ThatPlayed(play);
+            if (!changedPlayer.CardsInHand.Any())
             {
-                temp = temp.WithNewRank(game.NextRank());
+                changedPlayer = changedPlayer.WithNewRank(game.NextRank());
             }
 
-            var tempPlayers = game.Players.Select((pl, i) => i == playingPlayerNo ? temp : pl).ToArray();
+            var tempPlayers = game.Players.ReplacePlayer(changedPlayer).ToArray();
 
             var stillPlaying = tempPlayers.Where(pl => pl.NewRank == Rank.Unknown).ToList();
             if (stillPlaying.Count == 1)
             {
                 var finalPlayers = tempPlayers.Select(pl => pl.WhenGameEnded());
-                return new GameState(finalPlayers, game.CenterCard);
+                return new GameState(GamePhase.Ended, finalPlayers, game.CenterCard);
             }
 
             var lastProperPlayPlayer = tempPlayers.WhoPutLastCardsDown();
@@ -222,20 +226,20 @@ namespace Klootzakken.Server
                     .ToArray();
                 var newTopCard = lastProperPlay.PlayedCards.Last();
 
-                return new GameState(players, newTopCard, newActivePlayer);
+                return new GameState(GamePhase.Playing, players, newTopCard);
             }
             else
             {
                 var players = tempPlayers.Select((pl, i) => i == newActivePlayer ? pl.WithOptions(lastProperPlay) : pl)
                     .ToArray();
 
-                return new GameState(players, game.CenterCard, newActivePlayer);
+                return new GameState(GamePhase.Playing, players, game.CenterCard);
             }
         }
 
         public static Player WithNewRank(this Player player, Rank newRank)
         {
-            return new Player(player.Name, player.PlaysThisRound, player.CardsInHand, player.PossibleActions, newRank, null);
+            return new Player(player.User, player.PlaysThisRound, player.CardsInHand, player.PossibleActions, newRank, null);
         }
 
         public static int WhoPutLastCardsDown(this Player[] players)
@@ -250,7 +254,7 @@ namespace Klootzakken.Server
 
         public static Player ThatPlayed(this Player player, Play play)
         {
-            return new Player(player.Name, player.PlaysThisRound.Concat(play).ToArray(), player.CardsInHand.Except(play.PlayedCards).ToArray(), new Play[0], Rank.Unknown, null);
+            return new Player(player.User, player.PlaysThisRound.Concat(play).ToArray(), player.CardsInHand.Except(play.PlayedCards).ToArray(), new Play[0], Rank.Unknown, null);
         }
 
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> src, T item)
@@ -261,18 +265,18 @@ namespace Klootzakken.Server
         public static Player WithStartOptions(this Player player)
         {
             var possibleActions = player.CardsInHand.StartOptions();
-            return new Player(player.Name, new Play[0], player.CardsInHand, possibleActions, Rank.Unknown, null);
+            return new Player(player.User, new Play[0], player.CardsInHand, possibleActions, Rank.Unknown, null);
         }
 
         public static Player WithOptions(this Player player, Play lastProperPlay)
         {
             var possibleActions = player.CardsInHand.Options(lastProperPlay);
-            return new Player(player.Name, player.PlaysThisRound, player.CardsInHand, possibleActions, Rank.Unknown, null);
+            return new Player(player.User, player.PlaysThisRound, player.CardsInHand, possibleActions, Rank.Unknown, null);
         }
 
         public static Player StartNewRound(this Player player)
         {
-            return new Player(player.Name, new Play[0], player.CardsInHand, new Play[0], Rank.Unknown, null);
+            return new Player(player.User, new Play[0], player.CardsInHand, new Play[0], Rank.Unknown, null);
         }
 
         public static Play[] StartOptions(this Card[] cardsInHand)
