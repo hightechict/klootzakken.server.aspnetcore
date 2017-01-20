@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klootzakken.Server", "Klootzakken.Server.csproj", "{281BEF6F-2A35-47B1-A55A-3E076231C78C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klootzakken.Server", "src\Klootzakken.Server\Klootzakken.Server.csproj", "{281BEF6F-2A35-47B1-A55A-3E076231C78C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klootzakker.Server.Tests", "..\..\tst\Klootzakker.Server.Tests\Klootzakker.Server.Tests.csproj", "{223EA1F6-BEC7-4968-9B11-AC02992AA6E7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klootzakker.Server.Tests", "tst\Klootzakker.Server.Tests\Klootzakker.Server.Tests.csproj", "{223EA1F6-BEC7-4968-9B11-AC02992AA6E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
