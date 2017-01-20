@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Klootzakken.Web.Data;
 using Klootzakken.Web.Models;
 using Klootzakken.Web.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Klootzakken.Web
 {
@@ -47,7 +48,11 @@ namespace Klootzakken.Web
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddMvc();
+            services.AddMvc(options =>
+            {
+                options.SslPort = 44376;
+                options.Filters.Add(new RequireHttpsAttribute());
+            });
 
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
