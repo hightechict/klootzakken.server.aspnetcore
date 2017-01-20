@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Klootzakken.Server.Model
 {
-    public class User : IEquatable<User>
+    public class User : Entity, IEquatable<User>
     {
         public bool Equals(User other)
         {
@@ -25,15 +25,8 @@ namespace Klootzakken.Server.Model
             return StringComparer.InvariantCulture.GetHashCode(Id);
         }
 
-        public User([NotNull]string id, [NotNull]string displayName)
+        public User([NotNull]string id, [NotNull]string name) : base(id, name)
         {
-            Id = id;
-            DisplayName = displayName;
         }
-
-        [NotNull]
-        public string DisplayName { get; }
-        [NotNull]
-        public string Id { get; }
     }
 }
