@@ -54,6 +54,7 @@
     <Compile Include="Model\Card.cs" />
     <Compile Include="Model\CardSuit.cs" />
     <Compile Include="Model\CardValue.cs" />
+    <Compile Include="Model\Entity.cs" />
     <Compile Include="Model\GamePhase.cs" />
     <Compile Include="Model\Game.cs" />
     <Compile Include="Model\Lobby.cs" />

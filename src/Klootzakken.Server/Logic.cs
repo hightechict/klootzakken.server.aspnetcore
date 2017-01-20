@@ -24,14 +24,14 @@ namespace Klootzakken.Server
 
         public static Lobby Join(this Lobby lobby, User user)
         {
-            return new Lobby(lobby.Users.Concat(user));
+            return new Lobby(lobby, lobby.Users.Concat(user), lobby.IsListed);
         }
 
         public static Lobby Leave(this Lobby lobby, User user)
         {
             if (!lobby.Users.Contains(user))
                 throw new ArgumentOutOfRangeException(nameof(user), "No such user");
-            return new Lobby(lobby.Users.Where(u => !Equals(u, user)));
+            return new Lobby(lobby, lobby.Users.Where(u => !Equals(u, user)), lobby.IsListed);
         }
 
         public static Game DealFirstGame(this Lobby lobby)
@@ -45,7 +45,7 @@ namespace Klootzakken.Server
                 .Select((pl, i) => new Player(pl, new Play[0], deal[i].AsArray(), new Play[0], Rank.Unknown, null))
                 .Select((pl, i) => i == startPlayer ? pl.WithStartOptions() : pl)
                 .AsArray();
-            return new Game(GamePhase.Playing, players, null);
+            return new Game(lobby, GamePhase.Playing, players, null);
         }
 
         public static Game Redeal(this Game game)
@@ -54,7 +54,7 @@ namespace Klootzakken.Server
             int ignorePlayerThatGotLowestCard;
             var deal = DealCards(playerCount, out ignorePlayerThatGotLowestCard);
             var players = game.Players.Select((pl, i) => pl.WithNewHand(deal[i]).WithCardExchangeOptions()).AsArray();
-            return new Game(GamePhase.SwappingCards, players, null);
+            return new Game(game, GamePhase.SwappingCards, players, null);
         }
 
         private static List<Card>[] DealCards(int playerCount, out int playerThatGotLastCard)
@@ -113,10 +113,10 @@ namespace Klootzakken.Server
 
             var thisWasNotTheLastPlayerToSwap = game.Players.Count(pl => pl.PossibleActions.Length != 0) > 1;
             if (thisWasNotTheLastPlayerToSwap)
-                return new Game(GamePhase.SwappingCards, newPlayers, null);
+                return new Game(game, GamePhase.SwappingCards, newPlayers, null);
 
             var startPlayers = newPlayers.Select(pl => pl.TakeSwappedCards(newPlayers));
-            return new Game(GamePhase.Playing, startPlayers, null);
+            return new Game(game, GamePhase.Playing, startPlayers, null);
         }
 
         public static Game WhenPlayingEndedGame(this Game game, User user, Play play)
@@ -143,7 +143,7 @@ namespace Klootzakken.Server
             if (stillPlaying.Count == 1)
             {
                 var finalPlayers = tempPlayers.Select(pl => pl.WhenGameEnded());
-                return new Game(GamePhase.Ended, finalPlayers, game.CenterCard);
+                return new Game(game, GamePhase.Ended, finalPlayers, game.CenterCard);
             }
 
             var lastProperPlayPlayer = tempPlayers.WhoPutLastCardsDown();
@@ -169,14 +169,14 @@ namespace Klootzakken.Server
                         .AsArray();
                 var newTopCard = lastProperPlay.PlayedCards.Last();
 
-                return new Game(GamePhase.Playing, players, newTopCard);
+                return new Game(game, GamePhase.Playing, players, newTopCard);
             }
             else
             {
                 var players = tempPlayers.Select((pl, i) => i == newActivePlayer ? pl.WithOptions(lastProperPlay) : pl)
                     .AsArray();
 
-                return new Game(GamePhase.Playing, players, game.CenterCard);
+                return new Game(game, GamePhase.Playing, players, game.CenterCard);
             }
         }
 

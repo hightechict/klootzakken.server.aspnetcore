@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace Klootzakken.Server.Model
 {
-    public class Game
+    public class Game : Entity
     {
-        public Game(GamePhase phase, IEnumerable<Player> players, Card centerCard)
+        public Game(Entity srcEntity, GamePhase phase, IEnumerable<Player> players, Card centerCard) : base(srcEntity)
         {
             CenterCard = centerCard;
             Players = players.AsArray();

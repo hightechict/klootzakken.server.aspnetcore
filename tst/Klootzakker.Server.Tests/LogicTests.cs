@@ -363,7 +363,9 @@ namespace Klootzakker.Server.Tests
 
         private static Lobby CreateLobby(int numberOfUsers)
         {
-            return new Lobby( Enumerable.Range(0,numberOfUsers).Select( i => new User($"{i}", $"Player {i+1}" )));
+            var srcEntity = new Lobby("0", "Game", null, false);
+            return new Lobby(srcEntity,
+                Enumerable.Range(0, numberOfUsers).Select(i => new User($"{i}", $"Player {i + 1}")), false);
         }
 
         #region Helpers
