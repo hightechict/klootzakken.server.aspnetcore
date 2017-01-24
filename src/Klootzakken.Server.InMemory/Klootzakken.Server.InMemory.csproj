@@ -46,13 +46,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Klootzakken.Server\Klootzakken.Server.csproj">
       <Project>{281BEF6F-2A35-47B1-A55A-3E076231C78C}</Project>
       <Name>Klootzakken.Server</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="project.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

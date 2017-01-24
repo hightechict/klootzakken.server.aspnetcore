@@ -1,0 +1,11 @@
+﻿{
+  "dependencies": {
+    "JetBrains.Annotations": "10.2.1"
+  },
+  "frameworks": {
+    "net451": {}
+  },
+  "runtimes": {
+    "win": {}
+  }
+}
