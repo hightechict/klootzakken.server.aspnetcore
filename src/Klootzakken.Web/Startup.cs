@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,7 +14,10 @@ using Microsoft.Extensions.Logging;
 using Klootzakken.Web.Data;
 using Klootzakken.Web.Models;
 using Klootzakken.Web.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using Klootzakken.Web.Controllers;
 
 namespace Klootzakken.Web
 {
@@ -47,6 +52,22 @@ namespace Klootzakken.Web
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+            /* identityOptions =>
+                {
+                    identityOptions.Cookies.ApplicationCookie.Events =
+                        new CookieAuthenticationEvents
+                        {
+                            OnRedirectToLogin = context =>
+                            {
+                                if (context.Request.Path.StartsWithSegments("/api") &&
+                                    context.Response.StatusCode == (int) HttpStatusCode.OK)
+                                    context.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
+                                else
+                                    context.Response.Redirect(context.RedirectUri);
+                                return Task.FromResult(0);
+                            }
+                        };
+                }*/
 
             services.AddMvc(options =>
             {
@@ -87,6 +108,8 @@ namespace Klootzakken.Web
                 ClientSecret = Configuration["Authentication:Google:ClientSecret"]
             });
 
+            ConfigureAuth(app);
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
@@ -94,5 +117,40 @@ namespace Klootzakken.Web
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
         }
+
+        private void ConfigureAuth(IApplicationBuilder app)
+        {
+
+            var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetSection("TokenAuthentication:SecretKey").Value));
+
+            TokenController.Options.Audience = Configuration.GetSection("TokenAuthentication:Audience").Value;
+            TokenController.Options.Issuer = Configuration.GetSection("TokenAuthentication:Issuer").Value;
+            TokenController.Options.SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                // The signing key must match!
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = signingKey,
+                // Validate the JWT Issuer (iss) claim
+                ValidateIssuer = true,
+                ValidIssuer = Configuration.GetSection("TokenAuthentication:Issuer").Value,
+                // Validate the JWT Audience (aud) claim
+                ValidateAudience = true,
+                ValidAudience = Configuration.GetSection("TokenAuthentication:Audience").Value,
+                // Validate the token expiry
+                ValidateLifetime = true,
+                // If you want to allow a certain amount of clock drift, set that here:
+                ClockSkew = TimeSpan.Zero
+            };
+
+            app.UseJwtBearerAuthentication(new JwtBearerOptions
+            {
+                AutomaticAuthenticate = true,
+                AutomaticChallenge = true,
+                TokenValidationParameters = tokenValidationParameters
+            });
+        }
     }
+
 }
