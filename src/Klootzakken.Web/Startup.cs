@@ -49,25 +49,15 @@ namespace Klootzakken.Web
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole>(identityOptions =>
+                {
+                    identityOptions.Cookies.ApplicationCookie.Events = new CookieAuthenticationEvents
+                    {
+                        OnRedirectToLogin = RedirectOnlyNonApiCalls
+                    };
+                })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-            /* identityOptions =>
-                {
-                    identityOptions.Cookies.ApplicationCookie.Events =
-                        new CookieAuthenticationEvents
-                        {
-                            OnRedirectToLogin = context =>
-                            {
-                                if (context.Request.Path.StartsWithSegments("/api") &&
-                                    context.Response.StatusCode == (int) HttpStatusCode.OK)
-                                    context.Response.StatusCode = (int) HttpStatusCode.Unauthorized;
-                                else
-                                    context.Response.Redirect(context.RedirectUri);
-                                return Task.FromResult(0);
-                            }
-                        };
-                }*/
 
             services.AddMvc(options =>
             {
@@ -78,6 +68,13 @@ namespace Klootzakken.Web
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
+        }
+
+        private static Task RedirectOnlyNonApiCalls(CookieRedirectContext context)
+        {
+            if (!context.Request.Path.StartsWithSegments("/api"))
+                context.Response.Redirect(context.RedirectUri);
+            return Task.FromResult(0);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
