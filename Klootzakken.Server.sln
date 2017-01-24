@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klootzakken.Server.InMemory
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klootzakken.Core", "src\Klootzakken.Core\Klootzakken.Core.csproj", "{51FD1E26-A278-4A0B-B8E0-293C5D011174}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klootzakken.Core.Tests", "tst\Klootzakken.Core.Tests\Klootzakken.Core.Tests.csproj", "{730DB4F0-016D-4C8D-8403-9A043AC69F59}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,18 @@ Global
 		{51FD1E26-A278-4A0B-B8E0-293C5D011174}.Release|x64.Build.0 = Release|x64
 		{51FD1E26-A278-4A0B-B8E0-293C5D011174}.Release|x86.ActiveCfg = Release|x86
 		{51FD1E26-A278-4A0B-B8E0-293C5D011174}.Release|x86.Build.0 = Release|x86
+		{730DB4F0-016D-4C8D-8403-9A043AC69F59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{730DB4F0-016D-4C8D-8403-9A043AC69F59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{730DB4F0-016D-4C8D-8403-9A043AC69F59}.Debug|x64.ActiveCfg = Debug|x64
+		{730DB4F0-016D-4C8D-8403-9A043AC69F59}.Debug|x64.Build.0 = Debug|x64
+		{730DB4F0-016D-4C8D-8403-9A043AC69F59}.Debug|x86.ActiveCfg = Debug|x86
+		{730DB4F0-016D-4C8D-8403-9A043AC69F59}.Debug|x86.Build.0 = Debug|x86
+		{730DB4F0-016D-4C8D-8403-9A043AC69F59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{730DB4F0-016D-4C8D-8403-9A043AC69F59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{730DB4F0-016D-4C8D-8403-9A043AC69F59}.Release|x64.ActiveCfg = Release|x64
+		{730DB4F0-016D-4C8D-8403-9A043AC69F59}.Release|x64.Build.0 = Release|x64
+		{730DB4F0-016D-4C8D-8403-9A043AC69F59}.Release|x86.ActiveCfg = Release|x86
+		{730DB4F0-016D-4C8D-8403-9A043AC69F59}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
