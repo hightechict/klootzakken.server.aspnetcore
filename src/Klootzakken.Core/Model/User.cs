@@ -9,7 +9,7 @@ namespace Klootzakken.Server.Model
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return string.Equals(Id, other.Id, StringComparison.InvariantCulture);
+            return string.Equals(Id, other.Id, StringComparison.OrdinalIgnoreCase);
         }
 
         public override bool Equals(object obj)
@@ -22,7 +22,7 @@ namespace Klootzakken.Server.Model
 
         public override int GetHashCode()
         {
-            return StringComparer.InvariantCulture.GetHashCode(Id);
+            return StringComparer.OrdinalIgnoreCase.GetHashCode(Id);
         }
 
         public User([NotNull]string id, [NotNull]string name) : base(id, name)

@@ -1,7 +1,7 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net451</TargetFramework>
+    <TargetFramework>net452</TargetFramework>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <RuntimeIdentifier>win7-x86</RuntimeIdentifier>
   </PropertyGroup>
@@ -48,6 +48,7 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.0-msbuild2-final" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Klootzakken.Server\Klootzakken.Server.csproj" />
+    <ProjectReference Include="..\Klootzakken.Core\Klootzakken.Core.csproj" />
+    <ProjectReference Include="..\Klootzakken.Server.InMemory\Klootzakken.Server.InMemory.csproj" />
   </ItemGroup>
 </Project>
