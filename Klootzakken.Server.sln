@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klootzakker.Server.Tests", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klootzakken.Web", "src\Klootzakken.Web\Klootzakken.Web.csproj", "{406B9C71-F0D7-4A6D-8697-725D7DACE1A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klootzakken.Server.InMemory", "src\Klootzakken.Server.InMemory\Klootzakken.Server.InMemory.csproj", "{96EE9500-DCFA-4746-BA1C-92F7279750B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{406B9C71-F0D7-4A6D-8697-725D7DACE1A8}.Release|x64.Build.0 = Release|x64
 		{406B9C71-F0D7-4A6D-8697-725D7DACE1A8}.Release|x86.ActiveCfg = Release|x86
 		{406B9C71-F0D7-4A6D-8697-725D7DACE1A8}.Release|x86.Build.0 = Release|x86
+		{96EE9500-DCFA-4746-BA1C-92F7279750B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96EE9500-DCFA-4746-BA1C-92F7279750B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96EE9500-DCFA-4746-BA1C-92F7279750B0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{96EE9500-DCFA-4746-BA1C-92F7279750B0}.Debug|x64.Build.0 = Debug|Any CPU
+		{96EE9500-DCFA-4746-BA1C-92F7279750B0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{96EE9500-DCFA-4746-BA1C-92F7279750B0}.Debug|x86.Build.0 = Debug|Any CPU
+		{96EE9500-DCFA-4746-BA1C-92F7279750B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96EE9500-DCFA-4746-BA1C-92F7279750B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96EE9500-DCFA-4746-BA1C-92F7279750B0}.Release|x64.ActiveCfg = Release|Any CPU
+		{96EE9500-DCFA-4746-BA1C-92F7279750B0}.Release|x64.Build.0 = Release|Any CPU
+		{96EE9500-DCFA-4746-BA1C-92F7279750B0}.Release|x86.ActiveCfg = Release|Any CPU
+		{96EE9500-DCFA-4746-BA1C-92F7279750B0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
