@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using Klootzakken.Server.ApiModel;
 using Klootzakken.Server.Model;
 
@@ -15,23 +14,8 @@ namespace Klootzakken.Server.InMemory
 
         public IObservable<LobbyView> CreateLobby(User user, string name, bool isPublic)
         {
-            var lobby = new Lobby(Guid.NewGuid().ToString(), name, user, isPublic);
+            var lobby = new Lobby(_lobbies.Count.ToString(), name, user, isPublic);
             return OnLobby(lobby).AsView();
-        }
-
-        private IObservable<Lobby> OnLobby(Lobby lobby)
-        {
-            _lobbies[lobby.Id] = lobby;
-            //_lobbyStream.OnNext(lobby);
-            return Observable.Return(lobby);
-        }
-
-        private IObservable<Game> OnGame(Game game)
-        {
-            _games[game.Id] = game;
-            _lobbies.TryRemove(game.Id, out Lobby ignoreMe);
-            //_gameStream.OnNext(game);
-            return Observable.Return(game);
         }
 
         public IObservable<bool> InviteFriend(User user, string lobbyId, string userId)
@@ -46,22 +30,58 @@ namespace Klootzakken.Server.InMemory
 
         public IObservable<LobbyView> JoinLobby(User user, string lobbyId)
         {
-            return OnLobby(PrivateGetLobby(lobbyId).Join(user)).AsView();
+            try
+            {
+                return OnLobby(PrivateGetLobby(lobbyId).Join(user)).AsView();
+            }
+            catch (ArgumentException e)
+            {
+                return Observable.Throw<LobbyView>(new ApiException(e));
+            }
         }
 
         public IObservable<GameView> GetGame(User user, string gameId)
         {
-            return PrivateGetGame(gameId).AsViewFor(user);
+            try
+            {
+                return PrivateGetGame(gameId).AsViewFor(user);
+            }
+            catch (ArgumentException e)
+            {
+                return Observable.Throw<GameView>(new ApiException(e));
+            }
         }
 
         public IObservable<GameView> StartGame(User user, string lobbyId)
         {
-            return OnGame(PrivateGetLobby(lobbyId).DealFirstGame()).AsViewFor(user);
+            try
+            {
+                return OnGame(PrivateGetLobby(lobbyId).DealFirstGame()).AsViewFor(user);
+            }
+            catch (ArgumentException e)
+            {
+                return Observable.Throw<GameView>(new ApiException(e));
+            }
+            catch (InvalidOperationException e)
+            {
+                return Observable.Throw<GameView>(new ApiException(e));
+            }
         }
 
         public IObservable<GameView> Play(User user, string gameId, Play play)
         {
-            return OnGame(PrivateGetGame(gameId).WhenPlaying(user, play)).AsViewFor(user);
+            try
+            {
+                return OnGame(PrivateGetGame(gameId).WhenPlaying(user, play)).AsViewFor(user);
+            }
+            catch (ArgumentException e)
+            {
+                return Observable.Throw<GameView>(new ApiException(e));
+            }
+            catch (InvalidOperationException e)
+            {
+                return Observable.Throw<GameView>(new ApiException(e));
+            }
         }
 
         public IObservable<GameView> MyGames(User user)
@@ -93,14 +113,29 @@ namespace Klootzakken.Server.InMemory
         {
             if (_lobbies.TryGetValue(lobbyId, out Lobby lobby))
                 return lobby;
-            throw new ArgumentOutOfRangeException($"No such lobby {lobbyId}");
+            throw new ArgumentException($"No such lobby {lobbyId}", nameof(lobbyId));
         }
 
         private Game PrivateGetGame(string gameId)
         {
             if (_games.TryGetValue(gameId, out Game game))
                 return game;
-            throw new ArgumentOutOfRangeException($"No such game {gameId}");
+            throw new ArgumentException($"No such game {gameId}", nameof(gameId));
+        }
+
+        private IObservable<Lobby> OnLobby(Lobby lobby)
+        {
+            _lobbies[lobby.Id] = lobby;
+            //_lobbyStream.OnNext(lobby);
+            return Observable.Return(lobby);
+        }
+
+        private IObservable<Game> OnGame(Game game)
+        {
+            _games[game.Id] = game;
+            _lobbies.TryRemove(game.Id, out Lobby ignoreMe);
+            //_gameStream.OnNext(game);
+            return Observable.Return(game);
         }
     }
 }

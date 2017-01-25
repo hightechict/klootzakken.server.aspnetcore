@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Security.Claims;
@@ -13,107 +15,126 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Klootzakken.Server.InMemory;
+using Microsoft.AspNetCore.Server.Kestrel;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Klootzakken.Web.Controllers
 {
-    [Authorize]
-    [Route("api/[controller]")]
-    public class GameController : Controller
+    public static class HelperExtensions
     {
-        public static GameApi TheGameApi = new GameApi();
-
-        private static User GetUser(ClaimsPrincipal claim)
+        public static User AsGameUser(this ClaimsPrincipal claim)
         {
             var userId = claim.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value;
             var nameClaim = (claim.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name) ?? claim.Claims.Single(c => c.Type == ClaimTypes.Email));
             var userName = nameClaim.Value;
             return new User(userId, userName);
         }
+    }
+
+    [Authorize]
+    [Route("api/[controller]")]
+    public class GameController : Controller
+    {
+        public static GameApi TheGameApi = new GameApi();
+
+        public User GameUser => User.AsGameUser();
 
         [HttpPost]
         [Route("lobby/create/{name}")]
-        public Task<LobbyView> CreateLobby(string name)
+        public Task<IActionResult> CreateLobby(string name)
         {
-            return TheGameApi.CreateLobby(GetUser(User), name, true).ToTask();
+            return WrapAsync(TheGameApi.CreateLobby(User.AsGameUser(), name, true).ToTask());
         }
 
         [HttpPost]
         [Route("lobby/{lobbyId}/inviteFriend/{userId}")]
-        public Task<bool> InviteFriend(string lobbyId, string userId)
+        public Task<IActionResult> InviteFriend(string lobbyId, string userId)
         {
             throw new NotImplementedException();
         }
 
         [HttpPost]
         [Route("lobby/{lobbyId}/inviteFriends")]
-        public Task<bool> InviteFriends(string lobbyId)
+        public Task<IActionResult> InviteFriends(string lobbyId)
         {
             throw new NotImplementedException();
         }
 
         [HttpPost]
         [Route("lobby/{lobbyId}/join")]
-        public Task<LobbyView> JoinLobby(string lobbyId)
+        public Task<IActionResult> JoinLobby(string lobbyId)
         {
-            return TheGameApi.JoinLobby(GetUser(User), lobbyId).ToTask();
+            return WrapAsync(TheGameApi.JoinLobby(GameUser, lobbyId).ToTask());
         }
 
         [HttpGet]
         [Route("game/{gameId}")]
-        public Task<GameView> GetGame(string gameId)
+        public Task<IActionResult> GetGame(string gameId)
         {
-            return TheGameApi.GetGame(GetUser(User), gameId).ToTask();
+            return WrapAsync(TheGameApi.GetGame(GameUser, gameId).ToTask());
         }
 
         [HttpPost]
         [Route("lobby/{lobbyId}/start")]
-        public Task<GameView> StartGame(string lobbyId)
+        public Task<IActionResult> StartGame(string lobbyId)
         {
-            return TheGameApi.StartGame(GetUser(User), lobbyId).ToTask();
+            return WrapAsync(TheGameApi.StartGame(GameUser, lobbyId).ToTask());
         }
 
         [HttpPost]
         [Route("game/{gameId}/play")]
-        public Task<GameView> Play(string gameId, [FromBody] Play play)
+        public Task<IActionResult> Play(string gameId, [FromBody] Play play)
         {
-            return TheGameApi.Play(GetUser(User), gameId, play).ToTask();
+            return WrapAsync(TheGameApi.Play(GameUser, gameId, play).ToTask());
         }
 
         [HttpGet]
         [Route("myGames")]
-        public Task<GameView[]> MyGames()
+        public Task<IActionResult> MyGames()
         {
-            return TheGameApi.MyGames(GetUser(User)).ToArray().ToTask();
+            return WrapAsync(TheGameApi.MyGames(GameUser).ToArray().ToTask());
         }
 
         [HttpGet]
         [Route("myLobbies")]
-        public Task<LobbyView[]> MyLobbies()
+        public Task<IActionResult> MyLobbies()
         {
-            return TheGameApi.MyLobbies(GetUser(User)).ToArray().ToTask();
+            return WrapAsync(TheGameApi.MyLobbies(GameUser).ToArray().ToTask());
         }
 
         [HttpGet]
         [Route("friendLobbies")]
-        public Task<LobbyView[]> FriendLobbies()
+        public Task<IActionResult> FriendLobbies()
         {
-            return TheGameApi.FriendLobbies(GetUser(User)).ToArray().ToTask();
+            return WrapAsync(TheGameApi.FriendLobbies(GameUser).ToArray().ToTask());
         }
 
         [HttpGet]
         [Route("lobbies")]
-        public Task<LobbyView[]> Lobbies()
+        public Task<IActionResult> Lobbies()
         {
-            return TheGameApi.Lobbies(GetUser(User)).ToArray().ToTask();
+            return WrapAsync(TheGameApi.Lobbies(GameUser).ToArray().ToTask());
         }
 
         [HttpGet]
         [Route("lobby/{lobbyId}")]
-        public Task<LobbyView> GetLobby(string lobbyId)
+        public Task<IActionResult> GetLobby(string lobbyId)
         {
-            return TheGameApi.GetLobby(GetUser(User), lobbyId).ToTask();
+            return WrapAsync(TheGameApi.GetLobby(GameUser, lobbyId).ToTask());
+        }
+
+        private async Task<IActionResult> WrapAsync<T>(Task<T> task)
+        {
+            try
+            {
+                var retVal = await task;
+                return Ok(retVal);
+            }
+            catch (ApiException ae)
+            {
+                return BadRequest(ae.Message);
+            }
         }
     }
 }
