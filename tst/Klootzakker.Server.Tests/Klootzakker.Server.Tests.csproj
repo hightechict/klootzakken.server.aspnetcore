@@ -49,9 +49,9 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Klootzakken.Server\Klootzakken.Server.csproj">
-      <Project>{281bef6f-2a35-47b1-a55a-3e076231c78c}</Project>
-      <Name>Klootzakken.Server</Name>
+    <ProjectReference Include="..\..\src\Klootzakken.Core\Klootzakken.Core.csproj">
+      <Project>{71a7ed1b-874a-40e7-9bf9-1d3665516069}</Project>
+      <Name>Klootzakken.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

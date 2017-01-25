@@ -1,4 +1,4 @@
-﻿namespace Klootzakken.Server.Model
+﻿namespace Klootzakken.Core.Model
 {
     public enum Rank
     {

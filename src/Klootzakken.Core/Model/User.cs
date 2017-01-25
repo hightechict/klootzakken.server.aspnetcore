@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Klootzakken.Server.Model
+namespace Klootzakken.Core.Model
 {
     public class User : Entity, IEquatable<User>
     {

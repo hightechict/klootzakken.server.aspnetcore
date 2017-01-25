@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace Klootzakken.Server.Model
+namespace Klootzakken.Core.Model
 {
     public abstract class Entity
     {

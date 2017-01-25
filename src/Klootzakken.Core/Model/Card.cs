@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Klootzakken.Server.Model
+namespace Klootzakken.Core.Model
 {
     public class Card : IEquatable<Card>
     {

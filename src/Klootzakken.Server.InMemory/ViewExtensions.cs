@@ -1,7 +1,7 @@
 using System;
 using System.Reactive.Linq;
-using Klootzakken.Server.ApiModel;
-using Klootzakken.Server.Model;
+using Klootzakken.Core.ApiModel;
+using Klootzakken.Core.Model;
 
 namespace Klootzakken.Server.InMemory
 {

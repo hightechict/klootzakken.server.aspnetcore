@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using Klootzakken.Server;
-using Klootzakken.Server.Model;
+using Klootzakken.Core;
+using Klootzakken.Core.Model;
 using Xunit;
 
 namespace Klootzakker.Server.Tests

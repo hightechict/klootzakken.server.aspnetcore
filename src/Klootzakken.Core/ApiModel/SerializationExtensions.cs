@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using Klootzakken.Server.Model;
+using Klootzakken.Core.Model;
 
-namespace Klootzakken.Server.ApiModel
+namespace Klootzakken.Core.ApiModel
 {
     public static class SerializationExtensions
     {

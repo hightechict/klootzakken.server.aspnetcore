@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Klootzakken.Server.Model
+namespace Klootzakken.Core.Model
 {
     public class Lobby : Entity
     {

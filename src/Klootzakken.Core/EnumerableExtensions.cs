@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Klootzakken.Server
+namespace Klootzakken.Core
 {
     public static class EnumerableExtensions
     {

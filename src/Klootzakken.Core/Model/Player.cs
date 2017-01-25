@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Klootzakken.Server.Model
+namespace Klootzakken.Core.Model
 {
     public class Player
     {

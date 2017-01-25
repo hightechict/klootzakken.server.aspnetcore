@@ -2,13 +2,13 @@
   "version": 2,
   "targets": {
     ".NETFramework,Version=v4.5.1": {
-      "JetBrains.Annotations/10.2.1": {
+      "JetBrains.Annotations.Redist/7.1.0": {
         "type": "package",
         "compile": {
-          "lib/net/JetBrains.Annotations.dll": {}
+          "lib/net40/JetBrains.Annotations.dll": {}
         },
         "runtime": {
-          "lib/net/JetBrains.Annotations.dll": {}
+          "lib/net40/JetBrains.Annotations.dll": {}
         }
       },
       "System.Reactive/3.1.1": {
@@ -79,22 +79,22 @@
           "lib/net45/System.Reactive.Windows.Threading.dll": {}
         }
       },
-      "Klootzakken.Server/1.0.0": {
+      "Klootzakken.Core/1.0.0": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5.1",
         "dependencies": {
-          "JetBrains.Annotations": "10.2.1"
+          "JetBrains.Annotations.Redist": "7.1.0"
         }
       }
     },
     ".NETFramework,Version=v4.5.1/win": {
-      "JetBrains.Annotations/10.2.1": {
+      "JetBrains.Annotations.Redist/7.1.0": {
         "type": "package",
         "compile": {
-          "lib/net/JetBrains.Annotations.dll": {}
+          "lib/net40/JetBrains.Annotations.dll": {}
         },
         "runtime": {
-          "lib/net/JetBrains.Annotations.dll": {}
+          "lib/net40/JetBrains.Annotations.dll": {}
         }
       },
       "System.Reactive/3.1.1": {
@@ -165,31 +165,25 @@
           "lib/net45/System.Reactive.Windows.Threading.dll": {}
         }
       },
-      "Klootzakken.Server/1.0.0": {
+      "Klootzakken.Core/1.0.0": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5.1",
         "dependencies": {
-          "JetBrains.Annotations": "10.2.1"
+          "JetBrains.Annotations.Redist": "7.1.0"
         }
       }
     }
   },
   "libraries": {
-    "JetBrains.Annotations/10.2.1": {
-      "sha512": "yTPQ3CsP2I/3vgAsXWby3Bf+dbzsQC5I8/aOsktLi/cSvr50tVTANcL5rTrEmIllbEhZbtZ0rxzxJ2RU8UkMRg==",
+    "JetBrains.Annotations.Redist/7.1.0": {
+      "sha512": "Lmla6psPuNYNTBJ0mUKEonRyOcDhoagcWBAXjQ9Tbnev76GgBAbSTzQB6VQ4vLt9nqvb2ujW5m2PHu5RyPVZrg==",
       "type": "package",
-      "path": "jetbrains.annotations/10.2.1",
+      "path": "jetbrains.annotations.redist/7.1.0",
       "files": [
-        "JetBrains.Annotations.10.2.1.nupkg.sha512",
-        "JetBrains.Annotations.nuspec",
-        "lib/net/JetBrains.Annotations.dll",
-        "lib/net/JetBrains.Annotations.xml",
-        "lib/netstandard1.0/JetBrains.Annotations.NetStandard.dll",
-        "lib/netstandard1.0/JetBrains.Annotations.NetStandard.xml",
-        "lib/portable-net4+sl4+wp7+netcore45/JetBrains.Annotations.PCL1.dll",
-        "lib/portable-net4+sl4+wp7+netcore45/JetBrains.Annotations.PCL1.xml",
-        "lib/portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/JetBrains.Annotations.PCL328.dll",
-        "lib/portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1/JetBrains.Annotations.PCL328.xml"
+        "jetbrains.annotations.redist.7.1.0.nupkg.sha512",
+        "jetbrains.annotations.redist.nuspec",
+        "lib/net40/JetBrains.Annotations.XML",
+        "lib/net40/JetBrains.Annotations.dll"
       ]
     },
     "System.Reactive/3.1.1": {
@@ -302,10 +296,10 @@
         "lib/wpa81/System.Reactive.Windows.Threading.xml"
       ]
     },
-    "Klootzakken.Server/1.0.0": {
+    "Klootzakken.Core/1.0.0": {
       "type": "project",
-      "path": "../Klootzakken.Server/project.json",
-      "msbuildProject": "../Klootzakken.Server/Klootzakken.Server.csproj"
+      "path": "../Klootzakken.Core/Klootzakken.Core.csproj",
+      "msbuildProject": "../Klootzakken.Core/Klootzakken.Core.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -327,8 +321,8 @@
       "frameworks": {
         "net451": {
           "projectReferences": {
-            "B:\\Sandbox\\Prive\\Klootzakken\\src\\Klootzakken.Server\\Klootzakken.Server.csproj": {
-              "projectPath": "B:\\Sandbox\\Prive\\Klootzakken\\src\\Klootzakken.Server\\Klootzakken.Server.csproj"
+            "B:\\Sandbox\\Prive\\Klootzakken\\src\\Klootzakken.Core\\Klootzakken.Core.csproj": {
+              "projectPath": "B:\\Sandbox\\Prive\\Klootzakken\\src\\Klootzakken.Core\\Klootzakken.Core.csproj"
             }
           }
         }

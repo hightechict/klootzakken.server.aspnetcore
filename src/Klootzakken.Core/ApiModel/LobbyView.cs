@@ -1,6 +1,6 @@
-﻿using Klootzakken.Server.Model;
+﻿using Klootzakken.Core.Model;
 
-namespace Klootzakken.Server.ApiModel
+namespace Klootzakken.Core.ApiModel
 {
     public class LobbyView
     {

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Klootzakken.Server.Model;
+using Klootzakken.Core.Model;
 
-namespace Klootzakken.Server
+namespace Klootzakken.Core
 {
     public static class PlayerExtensions
     {

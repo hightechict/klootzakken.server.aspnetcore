@@ -2,8 +2,9 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reactive.Linq;
-using Klootzakken.Server.ApiModel;
-using Klootzakken.Server.Model;
+using Klootzakken.Core.ApiModel;
+using Klootzakken.Core.Model;
+using Klootzakken.Core;
 
 namespace Klootzakken.Server.InMemory
 {
