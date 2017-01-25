@@ -9,6 +9,9 @@
     <UserSecretsId>aspnet-Klootzakken.Web-2294b5b7-d68d-4c96-b7a6-e582aeead041</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <Content Remove="Properties\PublishProfiles\FileSystemProfile.pubxml" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
     <Reference Include="Microsoft.CSharp" />
@@ -50,5 +53,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Klootzakken.Server.InMemory\Klootzakken.Server.InMemory.csproj" />
     <ProjectReference Include="..\Klootzakken.Server\Klootzakken.Server.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
 </Project>
