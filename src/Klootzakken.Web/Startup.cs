@@ -59,7 +59,7 @@ namespace Klootzakken.Web
             services.AddMvc(options =>
             {
                 options.SslPort = 44376;
-                options.Filters.Add(new RequireHttpsAttribute());
+                //options.Filters.Add(new RequireHttpsAttribute());
             });
 
             // Add application services.
