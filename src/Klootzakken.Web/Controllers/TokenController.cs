@@ -9,7 +9,6 @@ using Microsoft.IdentityModel.Tokens;
 namespace Klootzakken.Web.Controllers
 {
     [Authorize]
-    [Route("api/[controller]")]
     public class TokenController : Controller
     {
         public class TokenOptions
@@ -21,9 +20,8 @@ namespace Klootzakken.Web.Controllers
         }
 
         public static TokenOptions Options { get; } = new TokenOptions();
-        [Route("")]
-        [HttpGet, HttpPost]
-        public object Get()
+        [HttpGet,HttpPost]
+        public IActionResult Index()
         {
             var now = DateTime.UtcNow;
             var firstIdentity = User.Identity as ClaimsIdentity ?? User.Identities.First();
@@ -42,7 +40,7 @@ namespace Klootzakken.Web.Controllers
                 expires_in = (int)Options.Expiration.TotalSeconds
             };
 
-            return response;
+            return Ok(response);
         }
     }
 }
