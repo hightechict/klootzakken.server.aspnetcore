@@ -24,14 +24,14 @@ namespace Klootzakken.Server
 
         public static Lobby Join(this Lobby lobby, User user)
         {
-            return new Lobby(lobby, lobby.Users.Concat(user).Distinct(), lobby.IsListed);
+            return new Lobby(lobby, lobby.Owner, lobby.Users.Concat(user).Distinct(), lobby.IsListed);
         }
 
         public static Lobby Leave(this Lobby lobby, User user)
         {
-            if (!lobby.Users.Contains(user))
-                throw new ArgumentOutOfRangeException(nameof(user), "No such user");
-            return new Lobby(lobby, lobby.Users.Where(u => !Equals(u, user)), lobby.IsListed);
+            if (lobby.Owner.Equals(user))
+                throw new ArgumentException("Can't leave your own game", nameof(user));
+            return new Lobby(lobby, lobby.Owner, lobby.Users.Where(u => !Equals(u, user)), lobby.IsListed);
         }
 
         public static Game DealFirstGame(this Lobby lobby)
