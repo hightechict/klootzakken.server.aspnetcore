@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -117,8 +118,10 @@ namespace Klootzakken.Web
 
         private void ConfigureAuth(IApplicationBuilder app)
         {
-
-            var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetSection("TokenAuthentication:SecretKey").Value));
+            var tokenSecretKey = Configuration["Authentication:Token:SecretKey"];
+            if (string.IsNullOrEmpty(tokenSecretKey))
+                throw new Exception("Authentication:Token:SecretKey not configured");
+            var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSecretKey));
 
             TokenController.Options.Audience = Configuration.GetSection("TokenAuthentication:Audience").Value;
             TokenController.Options.Issuer = Configuration.GetSection("TokenAuthentication:Issuer").Value;
