@@ -11,7 +11,7 @@ namespace Klootzakken.Server.ApiModel
         IObservable<LobbyView> JoinLobby(User user, string lobbyId);
         IObservable<GameView> GetGame(User user, string gameId);
         IObservable<GameView> StartGame(User user, string lobbyId);
-        IObservable<GameView> Play(User user, string gameId, Play play);
+        IObservable<GameView> Play(User user, string gameId, PlayView play);
         IObservable<GameView> MyGames(User user);
         IObservable<LobbyView> MyLobbies(User user);
         IObservable<LobbyView> FriendLobbies(User user);

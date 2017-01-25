@@ -1,4 +1,5 @@
-﻿using Klootzakken.Server.Model;
+﻿using System.Linq;
+using Klootzakken.Server.Model;
 
 namespace Klootzakken.Server.ApiModel
 {
@@ -7,12 +8,12 @@ namespace Klootzakken.Server.ApiModel
         protected PlayerBase(Player src)
         {
             User = src.User;
-            PlaysThisRound = src.PlaysThisRound;
-            NewRank = src.NewRank;
+            PlaysThisRound = src.PlaysThisRound.Select(pl => new PlayView(pl)).ToArray();
+            NewRank = src.NewRank.Serialized();
         }
 
         public User User { get; }
-        public Play[] PlaysThisRound { get; }
-        public Rank NewRank { get; }
+        public PlayView[] PlaysThisRound { get; }
+        public string NewRank { get; }
     }
 }

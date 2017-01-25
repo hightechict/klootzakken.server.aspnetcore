@@ -84,7 +84,7 @@ namespace Klootzakken.Web.Controllers
 
         [HttpPost]
         [Route("game/{gameId}/play")]
-        public Task<IActionResult> Play(string gameId, [FromBody] Play play)
+        public Task<IActionResult> Play(string gameId, [FromBody] PlayView play)
         {
             return WrapAsync(TheGameApi.Play(GameUser, gameId, play).ToTask());
         }

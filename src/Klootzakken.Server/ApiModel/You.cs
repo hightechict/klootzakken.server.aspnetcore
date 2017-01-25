@@ -1,4 +1,5 @@
-﻿using Klootzakken.Server.Model;
+﻿using System.Linq;
+using Klootzakken.Server.Model;
 
 namespace Klootzakken.Server.ApiModel
 {
@@ -6,13 +7,13 @@ namespace Klootzakken.Server.ApiModel
     {
         public You(Player src) : base(src)
         {
-            ExchangedCards = src.ExchangedCards;
-            CardsInHand = src.CardsInHand;
-            PossibleActions = src.PossibleActions;
+            CardsInHand = src.CardsInHand.Serialized();
+            ExchangedCards = src.ExchangedCards?.PlayedCards?.Serialized();
+            PossibleActions = src.PossibleActions.Select( pa => new PlayView(pa)).ToArray();
         }
 
-        public Card[] CardsInHand { get; }
-        public Play[] PossibleActions { get; }
-        public Play ExchangedCards { get; }
+        public string[] CardsInHand { get; }
+        public PlayView[] PossibleActions { get; }
+        public string[] ExchangedCards { get; }
     }
 }

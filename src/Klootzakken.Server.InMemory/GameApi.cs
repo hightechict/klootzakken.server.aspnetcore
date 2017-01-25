@@ -68,11 +68,12 @@ namespace Klootzakken.Server.InMemory
             }
         }
 
-        public IObservable<GameView> Play(User user, string gameId, Play play)
+        public IObservable<GameView> Play(User user, string gameId, PlayView play)
         {
             try
             {
-                return OnGame(PrivateGetGame(gameId).WhenPlaying(user, play)).AsViewFor(user);
+                var parsedPlay = play.Deserialized();
+                return OnGame(PrivateGetGame(gameId).WhenPlaying(user, parsedPlay)).AsViewFor(user);
             }
             catch (ArgumentException e)
             {
