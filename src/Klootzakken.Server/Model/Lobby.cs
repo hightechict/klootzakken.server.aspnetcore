@@ -12,10 +12,12 @@ namespace Klootzakken.Server.Model
 
         public Lobby(string id, string name, User owner, bool isListed) : base(id, name)
         {
+            Owner = owner;
             IsListed = isListed;
             Users = new[] {owner};
         }
 
+        public User Owner { get; }
         public User[] Users { get; }
         public bool IsListed { get; }
     }

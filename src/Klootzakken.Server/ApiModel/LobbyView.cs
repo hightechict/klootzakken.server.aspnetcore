@@ -8,6 +8,7 @@ namespace Klootzakken.Server.ApiModel
         {
             Id = src.Id;
             Name = src.Name;
+            Owner = src.Owner;
             Owner = null;
             AllUsers = src.Users;
             Public = src.IsListed;
