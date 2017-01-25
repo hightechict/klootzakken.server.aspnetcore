@@ -1,6 +1,7 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -25,7 +26,7 @@ namespace Klootzakken.Web.Controllers
         public object Get()
         {
             var now = DateTime.UtcNow;
-            var firstIdentity = User.Identities.First();
+            var firstIdentity = User.Identity as ClaimsIdentity ?? User.Identities.First();
             var bearerToken = new JwtSecurityTokenHandler().CreateEncodedJwt(
                 issuer: Options.Issuer,
                 audience: Options.Audience,

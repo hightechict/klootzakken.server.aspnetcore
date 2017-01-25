@@ -7,7 +7,7 @@ namespace Klootzakken.Server.ApiModel
         public OtherPlayer(Player src) : base(src)
         {
             CardCount = src.CardsInHand.Length;
-            ExchangedCardsCount = src.ExchangedCards.PlayedCards.Length;
+            ExchangedCardsCount = src.ExchangedCards?.PlayedCards?.Length ?? 0;
             IsActive = src.PossibleActions.Length != 0;
         }
 

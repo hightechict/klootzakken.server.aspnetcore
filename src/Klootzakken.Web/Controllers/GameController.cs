@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Klootzakken.Server.ApiModel;
 using Klootzakken.Server.Model;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Klootzakken.Server.InMemory;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,6 +22,8 @@ namespace Klootzakken.Web.Controllers
     [Route("api/[controller]")]
     public class GameController : Controller
     {
+        public static GameApi TheGameApi = new GameApi();
+
         private static User GetUser(ClaimsPrincipal claim)
         {
             var userId = claim.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value;
@@ -28,67 +34,86 @@ namespace Klootzakken.Web.Controllers
 
         [HttpPost]
         [Route("lobby/create/{name}")]
-        public LobbyView CreateLobby(string name)
+        public Task<LobbyView> CreateLobby(string name)
         {
-            var user = GetUser(User);
-            var gameId = Guid.NewGuid().ToString();
-            var lobby = new Lobby(gameId, $"{user.Name}'s Game", user, true);
-            return new LobbyView(lobby);
+            return TheGameApi.CreateLobby(GetUser(User), name, true).ToTask();
         }
 
-        public IObservable<bool> InviteFriend(string lobbyId, string userId)
+        [HttpPost]
+        [Route("lobby/{lobbyId}/inviteFriend/{userId}")]
+        public Task<bool> InviteFriend(string lobbyId, string userId)
         {
             throw new NotImplementedException();
         }
 
-        public IObservable<bool> InviteFriends(string lobbyId)
+        [HttpPost]
+        [Route("lobby/{lobbyId}/inviteFriends")]
+        public Task<bool> InviteFriends(string lobbyId)
         {
             throw new NotImplementedException();
         }
 
-        public IObservable<LobbyView> JoinLobby(string lobbyId)
+        [HttpPost]
+        [Route("lobby/{lobbyId}/join")]
+        public Task<LobbyView> JoinLobby(string lobbyId)
         {
-            throw new NotImplementedException();
+            return TheGameApi.JoinLobby(GetUser(User), lobbyId).ToTask();
         }
 
-        public IObservable<GameView> GetGame(string gameId)
+        [HttpGet]
+        [Route("game/{gameId}")]
+        public Task<GameView> GetGame(string gameId)
         {
-            throw new NotImplementedException();
+            return TheGameApi.GetGame(GetUser(User), gameId).ToTask();
         }
 
-        public IObservable<GameView> StartGame(string lobbyId)
+        [HttpPost]
+        [Route("lobby/{lobbyId}/start")]
+        public Task<GameView> StartGame(string lobbyId)
         {
-            throw new NotImplementedException();
+            return TheGameApi.StartGame(GetUser(User), lobbyId).ToTask();
         }
 
-        public IObservable<GameView> Play(string gameId, Play play)
+        [HttpPost]
+        [Route("game/{gameId}/play")]
+        public Task<GameView> Play(string gameId, [FromBody] Play play)
         {
-            throw new NotImplementedException();
+            return TheGameApi.Play(GetUser(User), gameId, play).ToTask();
         }
 
-        public IObservable<GameView> MyGames()
+        [HttpGet]
+        [Route("myGames")]
+        public Task<GameView[]> MyGames()
         {
-            throw new NotImplementedException();
+            return TheGameApi.MyGames(GetUser(User)).ToArray().ToTask();
         }
 
-        public IObservable<LobbyView> MyLobbies()
+        [HttpGet]
+        [Route("myLobbies")]
+        public Task<LobbyView[]> MyLobbies()
         {
-            throw new NotImplementedException();
+            return TheGameApi.MyLobbies(GetUser(User)).ToArray().ToTask();
         }
 
-        public IObservable<LobbyView> FriendLobbies()
+        [HttpGet]
+        [Route("friendLobbies")]
+        public Task<LobbyView[]> FriendLobbies()
         {
-            throw new NotImplementedException();
+            return TheGameApi.FriendLobbies(GetUser(User)).ToArray().ToTask();
         }
 
-        public IObservable<LobbyView> Lobbies()
+        [HttpGet]
+        [Route("lobbies")]
+        public Task<LobbyView[]> Lobbies()
         {
-            throw new NotImplementedException();
+            return TheGameApi.Lobbies(GetUser(User)).ToArray().ToTask();
         }
 
-        public IObservable<LobbyView> GetLobby(string lobbyId)
+        [HttpGet]
+        [Route("lobby/{lobbyId}")]
+        public Task<LobbyView> GetLobby(string lobbyId)
         {
-            throw new NotImplementedException();
+            return TheGameApi.GetLobby(GetUser(User), lobbyId).ToTask();
         }
     }
 }

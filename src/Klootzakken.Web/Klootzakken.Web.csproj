@@ -48,6 +48,7 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.0-msbuild2-final" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Klootzakken.Server.InMemory\Klootzakken.Server.InMemory.csproj" />
     <ProjectReference Include="..\Klootzakken.Server\Klootzakken.Server.csproj" />
   </ItemGroup>
 </Project>

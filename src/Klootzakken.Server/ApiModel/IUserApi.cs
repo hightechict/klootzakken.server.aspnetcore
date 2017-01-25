@@ -5,7 +5,7 @@ namespace Klootzakken.Server.ApiModel
 {
     public interface IUserApi
     {
-        IObservable<LobbyView> CreateLobby(string name);
+        IObservable<LobbyView> CreateLobby(string name, bool isPublic);
         IObservable<bool> InviteFriend(string lobbyId, string userId);
         IObservable<bool> InviteFriends(string lobbyId);
         IObservable<LobbyView> JoinLobby(string lobbyId);

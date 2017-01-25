@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiModel\GameView.cs" />
+    <Compile Include="ApiModel\IGameApi.cs" />
     <Compile Include="ApiModel\IUserApi.cs" />
     <Compile Include="ApiModel\LobbyView.cs" />
     <Compile Include="ApiModel\OtherPlayer.cs" />

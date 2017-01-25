@@ -24,7 +24,7 @@ namespace Klootzakken.Server
 
         public static Lobby Join(this Lobby lobby, User user)
         {
-            return new Lobby(lobby, lobby.Users.Concat(user), lobby.IsListed);
+            return new Lobby(lobby, lobby.Users.Concat(user).Distinct(), lobby.IsListed);
         }
 
         public static Lobby Leave(this Lobby lobby, User user)
