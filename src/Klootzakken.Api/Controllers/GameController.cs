@@ -33,7 +33,7 @@ namespace Klootzakken.Api.Controllers
     }
 
     [Authorize]
-    [Route("kzapi")]
+    [Route("")]
     public class GameController : Controller
     {
         public static GameApi TheGameApi = new GameApi();
