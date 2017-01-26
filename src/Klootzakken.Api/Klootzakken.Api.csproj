@@ -6,7 +6,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net452</TargetFramework>
     <PreserveCompilationContext>true</PreserveCompilationContext>
-    <RuntimeIdentifier>win7-x86</RuntimeIdentifier>
+    <RuntimeIdentifier>win8-x64</RuntimeIdentifier>
   </PropertyGroup>
   <PropertyGroup>
     <UserSecretsId>aspnet-Klootzakken.Api-2294b5b7-d68d-4c96-b7a6-e582aeead041</UserSecretsId>
@@ -33,7 +33,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="1.1.0" />
-    <PackageReference Include="microsoft.owin.security.jwt" Version="3.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink.Loader" Version="14.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="1.0.0-rc1" />
   </ItemGroup>
