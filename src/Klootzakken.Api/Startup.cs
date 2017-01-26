@@ -71,7 +71,7 @@ namespace Klootzakken.Api
             // Enable middleware to serve swagger-ui (HTML, JS, CSS etc.), specifying the Swagger JSON endpoint.
             app.UseSwaggerUi(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Klootzakken API V1");
+                c.SwaggerEndpoint("../v1/swagger.json", "Klootzakken API V1");
             });
         }
 
