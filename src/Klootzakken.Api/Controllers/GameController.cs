@@ -6,6 +6,7 @@ using Klootzakken.Core.Model;
 using Microsoft.AspNetCore.Authorization;
 using Klootzakken.Server.InMemory;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Klootzakken.Api.Controllers
 {
@@ -29,6 +30,7 @@ namespace Klootzakken.Api.Controllers
         [HttpPost]
         [Route("lobby/create/{name}")]
         [ProducesResponseType(typeof(LobbyView), 200)]
+        [SwaggerOperation("CreateLobby")]
         public Task<IActionResult> CreateLobby(string name, [FromBody] bool isPublic = true)
         {
             return WrapAsync(TheGameApi.CreateLobby(User.AsGameUser(), name, isPublic).ToTask());
@@ -57,6 +59,7 @@ namespace Klootzakken.Api.Controllers
         [HttpPost]
         [Route("lobby/{lobbyId}/join")]
         [ProducesResponseType(typeof(LobbyView), 200)]
+        [SwaggerOperation("JoinLobby")]
         public Task<IActionResult> JoinLobby(string lobbyId)
         {
             return WrapAsync(TheGameApi.JoinLobby(GameUser, lobbyId).ToTask());
@@ -70,6 +73,7 @@ namespace Klootzakken.Api.Controllers
         [HttpGet]
         [Route("game/{gameId}")]
         [ProducesResponseType(typeof(GameView), 200)]
+        [SwaggerOperation("GetGame")]
         public Task<IActionResult> GetGame(string gameId)
         {
             return WrapAsync(TheGameApi.GetGame(GameUser, gameId).ToTask());
@@ -83,6 +87,7 @@ namespace Klootzakken.Api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(GameView), 200)]
         [Route("lobby/{lobbyId}/start")]
+        [SwaggerOperation("StartGame")]
         public Task<IActionResult> StartGame(string lobbyId)
         {
             return WrapAsync(TheGameApi.StartGame(GameUser, lobbyId).ToTask());
@@ -97,6 +102,7 @@ namespace Klootzakken.Api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(GameView), 200)]
         [Route("game/{gameId}/play")]
+        [SwaggerOperation("GameAction")]
         public Task<IActionResult> Play(string gameId, [FromBody] PlayView play)
         {
             return WrapAsync(TheGameApi.Play(GameUser, gameId, play).ToTask());
@@ -109,6 +115,7 @@ namespace Klootzakken.Api.Controllers
         [HttpGet]
         [Route("myGames")]
         [ProducesResponseType(typeof(GameView[]), 200)]
+        [SwaggerOperation("ListMyGames")]
         public Task<IActionResult> MyGames()
         {
             return WrapAsync(TheGameApi.MyGames(GameUser).ToArray().ToTask());
@@ -121,6 +128,7 @@ namespace Klootzakken.Api.Controllers
         [HttpGet]
         [Route("myLobbies")]
         [ProducesResponseType(typeof(LobbyView[]), 200)]
+        [SwaggerOperation("ListMyLobbies")]
         public Task<IActionResult> MyLobbies()
         {
             return WrapAsync(TheGameApi.MyLobbies(GameUser).ToArray().ToTask());
@@ -142,6 +150,7 @@ namespace Klootzakken.Api.Controllers
         [HttpGet]
         [Route("lobbies")]
         [ProducesResponseType(typeof(LobbyView[]), 200)]
+        [SwaggerOperation("ListLobbies")]
         public Task<IActionResult> Lobbies()
         {
             return WrapAsync(TheGameApi.Lobbies(GameUser).ToArray().ToTask());
@@ -155,6 +164,7 @@ namespace Klootzakken.Api.Controllers
         [HttpGet]
         [Route("lobby/{lobbyId}")]
         [ProducesResponseType(typeof(LobbyView), 200)]
+        [SwaggerOperation("GetLobby")]
         public Task<IActionResult> GetLobby(string lobbyId)
         {
             return WrapAsync(TheGameApi.GetLobby(GameUser, lobbyId).ToTask());
