@@ -20,27 +20,41 @@ namespace Klootzakken.Web.Controllers
         }
 
         public static TokenOptions Options { get; } = new TokenOptions();
-        [HttpGet,HttpPost]
+
+        [HttpGet, HttpPost]
         public IActionResult Index()
         {
-            var now = DateTime.UtcNow;
+            var expiration = Options.Expiration;
+            var response = CreateToken(expiration);
+
+            return Ok(response);
+        }
+
+        private object CreateToken(TimeSpan expiration)
+        {
             var firstIdentity = User.Identity as ClaimsIdentity ?? User.Identities.First();
+            var response = CreateTokenFor(expiration, firstIdentity);
+            return response;
+        }
+
+        internal static object CreateTokenFor(TimeSpan expiration, ClaimsIdentity firstIdentity)
+        {
+            var now = DateTime.UtcNow;
             var bearerToken = new JwtSecurityTokenHandler().CreateEncodedJwt(
                 issuer: Options.Issuer,
                 audience: Options.Audience,
                 subject: firstIdentity,
                 notBefore: now,
-                expires: now.Add(Options.Expiration),
+                expires: now.Add(expiration),
                 issuedAt: now,
                 signingCredentials: Options.SigningCredentials
             );
             var response = new
             {
                 access_token = bearerToken,
-                expires_in = (int)Options.Expiration.TotalSeconds
+                expires_in = (int) expiration.TotalSeconds
             };
-
-            return Ok(response);
+            return response;
         }
     }
 }
