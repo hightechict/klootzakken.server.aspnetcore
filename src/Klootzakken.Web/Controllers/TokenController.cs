@@ -15,7 +15,7 @@ namespace Klootzakken.Web.Controllers
         {
             public string Issuer { get; set; }
             public string Audience { get; set; }
-            public TimeSpan Expiration { get; set; } = TimeSpan.FromDays(1);
+            public TimeSpan Expiration { get; set; } = TimeSpan.FromDays(31);
             public SigningCredentials SigningCredentials { get; set; }
         }
 
