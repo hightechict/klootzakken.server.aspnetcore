@@ -3,8 +3,15 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace Klootzakken.Api
 {
+    /// <summary>
+    /// Main
+    /// </summary>
     public class Program
     {
+        /// <summary>
+        /// Main. This starts the aplication.
+        /// </summary>
+        /// <param name="args"></param>
         public static void Main(string[] args)
         {
             var host = new WebHostBuilder()
