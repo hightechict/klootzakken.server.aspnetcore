@@ -3,9 +3,7 @@
     <DocumentationFile>bin\Release\netcoreapp1.1\Klootzakken.Api.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp1.1</TargetFramework>
-    <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
   <PropertyGroup>
     <UserSecretsId>aspnet-Klootzakken.Api-2294b5b7-d68d-4c96-b7a6-e582aeead041</UserSecretsId>
