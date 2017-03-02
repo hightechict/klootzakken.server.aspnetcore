@@ -65,6 +65,8 @@ namespace Klootzakken.Web
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+            var logger = loggerFactory.CreateLogger("Startup");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -92,10 +94,10 @@ namespace Klootzakken.Web
 			}
 			else
 			{
-			    loggerFactory.CreateLogger("Startup").LogWarning("Authentication:Google:ClientId not configured - starting without Google Login support");	
+			    logger.LogWarning("Authentication:Google:ClientId not configured - starting without Google Login support");	
 			}
 
-            ConfigureAuth(app);
+            ConfigureTokenAuth(app, logger);
 
             app.UseMvc(routes =>
             {
@@ -105,11 +107,14 @@ namespace Klootzakken.Web
             });
         }
 
-        private void ConfigureAuth(IApplicationBuilder app)
+        private void ConfigureTokenAuth(IApplicationBuilder app, ILogger logger)
         {
             var tokenSecretKey = Configuration["Authentication:Token:SecretKey"];
             if (string.IsNullOrEmpty(tokenSecretKey))
-                throw new Exception("Authentication:Token:SecretKey not configured");
+            {
+                logger.LogWarning("Authentication:Token:SecretKey not configured - using a hardcoded value (NOT SECURE)");
+                tokenSecretKey = "everyoneknowsthiskeyitsnotsecret";
+            }
             var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSecretKey));
 
             TokenController.Options.Audience = Configuration["Authentication:Token:Audience"];
