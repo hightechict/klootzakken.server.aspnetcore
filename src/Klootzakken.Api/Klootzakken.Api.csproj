@@ -1,12 +1,9 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup Label="Configuration">
-    <DocumentationFile>bin\Release\net452\Klootzakken.Api.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\netcoreapp1.1\Klootzakken.Api.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net452</TargetFramework>
-    <PreserveCompilationContext>true</PreserveCompilationContext>
-    <RuntimeIdentifier>win8-x64</RuntimeIdentifier>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
   </PropertyGroup>
   <PropertyGroup>
     <UserSecretsId>aspnet-Klootzakken.Api-2294b5b7-d68d-4c96-b7a6-e582aeead041</UserSecretsId>
@@ -15,33 +12,17 @@
     <Content Remove="Properties\PublishProfiles\FileSystemProfile.pubxml" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Data" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="microsoft.aspnetcore.authentication.jwtbearer" Version="1.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="1.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="1.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Routing" Version="1.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="1.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink.Loader" Version="14.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="1.0.0-rc1" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="1.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="1.0.0-msbuild2-update1" />
-    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.0-msbuild2-final" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="1.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.0" />
+  </ItemGroup>
+  <ItemGroup>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Klootzakken.Core\Klootzakken.Core.csproj" />

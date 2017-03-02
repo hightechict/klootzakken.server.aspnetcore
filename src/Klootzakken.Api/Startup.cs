@@ -61,7 +61,9 @@ namespace Klootzakken.Api
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            ConfigureAuth(app);
+            var logger = loggerFactory.CreateLogger("Startup");
+
+            ConfigureTokenAuth(app, logger);
 
             app.UseMvc();
 
@@ -75,11 +77,14 @@ namespace Klootzakken.Api
             });
         }
 
-        private void ConfigureAuth(IApplicationBuilder app)
+        private void ConfigureTokenAuth(IApplicationBuilder app, ILogger logger)
         {
             var tokenSecretKey = Configuration["Authentication:Token:SecretKey"];
             if (string.IsNullOrEmpty(tokenSecretKey))
-                throw new Exception("Authentication:Token:SecretKey not configured");
+            {
+                logger.LogWarning("Authentication:Token:SecretKey not configured - using a hardcoded value (NOT SECURE)");
+                tokenSecretKey = "everyoneknowsthiskeyitsnotsecret";
+            }
             var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSecretKey));
 
             var tokenValidationParameters = new TokenValidationParameters

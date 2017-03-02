@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -15,8 +10,6 @@ using Microsoft.Extensions.Logging;
 using Klootzakken.Web.Data;
 using Klootzakken.Web.Models;
 using Klootzakken.Web.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Klootzakken.Web.Controllers;
 
@@ -48,8 +41,7 @@ namespace Klootzakken.Web
         {
             // Add framework services.
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite("Filename=./Users.db")
-//                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
                 );
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -73,6 +65,8 @@ namespace Klootzakken.Web
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+            var logger = loggerFactory.CreateLogger("Startup");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -89,13 +83,21 @@ namespace Klootzakken.Web
             app.UseIdentity();
 
             // Add external authentication middleware below. To configure them please see http://go.microsoft.com/fwlink/?LinkID=532715
-            app.UseGoogleAuthentication(new GoogleOptions()
-            {
-                ClientId = Configuration["Authentication:Google:ClientId"],
-                ClientSecret = Configuration["Authentication:Google:ClientSecret"]
-            });
+			var googleClientId = Configuration["Authentication:Google:ClientId"];
+			if (!string.IsNullOrEmpty(googleClientId))
+			{
+			    app.UseGoogleAuthentication(new GoogleOptions()
+			    {
+                    ClientId = googleClientId,
+                    ClientSecret = Configuration["Authentication:Google:ClientSecret"]
+                });
+			}
+			else
+			{
+			    logger.LogWarning("Authentication:Google:ClientId not configured - starting without Google Login support");	
+			}
 
-            ConfigureAuth(app);
+            ConfigureTokenAuth(app, logger);
 
             app.UseMvc(routes =>
             {
@@ -105,15 +107,18 @@ namespace Klootzakken.Web
             });
         }
 
-        private void ConfigureAuth(IApplicationBuilder app)
+        private void ConfigureTokenAuth(IApplicationBuilder app, ILogger logger)
         {
             var tokenSecretKey = Configuration["Authentication:Token:SecretKey"];
             if (string.IsNullOrEmpty(tokenSecretKey))
-                throw new Exception("Authentication:Token:SecretKey not configured");
+            {
+                logger.LogWarning("Authentication:Token:SecretKey not configured - using a hardcoded value (NOT SECURE)");
+                tokenSecretKey = "everyoneknowsthiskeyitsnotsecret";
+            }
             var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSecretKey));
 
-            TokenController.Options.Audience = Configuration.GetSection("Authentication:Token:Audience").Value;
-            TokenController.Options.Issuer = Configuration.GetSection("Authentication:Token:Issuer").Value;
+            TokenController.Options.Audience = Configuration["Authentication:Token:Audience"];
+            TokenController.Options.Issuer = Configuration["Authentication:Token:Issuer"];
             TokenController.Options.SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
             var tokenValidationParameters = new TokenValidationParameters
@@ -123,10 +128,10 @@ namespace Klootzakken.Web
                 IssuerSigningKey = signingKey,
                 // Validate the JWT Issuer (iss) claim
                 ValidateIssuer = true,
-                ValidIssuer = Configuration.GetSection("Authentication:Token:Issuer").Value,
+                ValidIssuer = Configuration["Authentication:Token:Issuer"],
                 // Validate the JWT Audience (aud) claim
                 ValidateAudience = true,
-                ValidAudience = Configuration.GetSection("Authentication:Token:Audience").Value,
+                ValidAudience = Configuration["Authentication:Token:Audience"],
                 // Validate the token expiry
                 ValidateLifetime = true,
                 // If you want to allow a certain amount of clock drift, set that here:
