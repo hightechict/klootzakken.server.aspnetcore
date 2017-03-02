@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Klootzakken.Web.Models.ManageViewModels
+﻿namespace Klootzakken.Web.Models.ManageViewModels
 {
     public class FactorViewModel
     {
