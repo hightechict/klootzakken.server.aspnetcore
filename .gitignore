@@ -8,3 +8,4 @@ bin
 packages
 *.user
 _NCrunch_*
+.vscode
