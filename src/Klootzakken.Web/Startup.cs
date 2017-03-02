@@ -92,7 +92,7 @@ namespace Klootzakken.Web
 			}
 			else
 			{
-			    	
+			    loggerFactory.CreateLogger("Startup").LogWarning("Authentication:Google:ClientId not configured - starting without Google Login support");	
 			}
 
             ConfigureAuth(app);
