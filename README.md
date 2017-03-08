@@ -1,8 +1,9 @@
 # klootzakken.server.aspnetcore
 Use 
-* VisualStudio 2017 (RC)
+* Visual Studio 2017
 or
-* dotnet core cli/sdk 1.0 rc4 build 004771 [Download](https://github.com/dotnet/core/blob/master/release-notes/rc4-download.md)
+* dotnet core cli/sdk 1.1.1 [Download](https://github.com/dotnet/core/blob/master/release-notes/download-archives/1.1.1-download.md)
+  * Combined with your favorite editor (eg. the excellent OSS/X-platform Visual Studio Code ) 
 
 It's spread over a couple of projects
 * ASP.NET core site for registration and login, and token generation (SQLite user storage), the "SSO"
