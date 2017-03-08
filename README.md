@@ -49,5 +49,5 @@ See [Pin Pairing](PinPairing.md) for more details.
 
 ## Notes
 * Above Live Server is registered as a Google API user application in Divverence's GSuite account.
-* Above live server does not (yet) auto-update.
+* Above live server does auto-update (version info [here](http://www.glueware.nl/Klootzakken/kz/version.html) ) from the deploy/glueware branch.
 * Above live server is able to share a port between the 2 applications by hosting the kestrel applications from IIS - effectively, IIS forwards each request to the correct 'locally listening' .Net core app.
