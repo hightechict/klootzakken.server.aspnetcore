@@ -15,6 +15,8 @@ namespace Klootzakken.Api
 {
     public class Startup
     {
+        private static readonly string PublicCorsPolicyName = "Public";
+
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -37,6 +39,16 @@ namespace Klootzakken.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+                {
+                    options.AddPolicy(PublicCorsPolicyName, builder => builder
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowCredentials()
+                        .AllowAnyMethod());
+                }
+            );
+
             services.AddMvc();
 
             // Register the Swagger generator, defining one or more Swagger documents
@@ -60,8 +72,9 @@ namespace Klootzakken.Api
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-
             var logger = loggerFactory.CreateLogger("Startup");
+
+            app.UseCors(PublicCorsPolicyName);
 
             ConfigureTokenAuth(app, logger);
 
