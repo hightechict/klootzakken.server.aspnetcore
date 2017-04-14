@@ -17,6 +17,8 @@ namespace Klootzakken.Web
 {
     public class Startup
     {
+        private static readonly string PublicCorsPolicyName = "Public";
+
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -40,7 +42,16 @@ namespace Klootzakken.Web
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddCors();
+            services.AddCors(options =>
+            {
+                options.AddPolicy(PublicCorsPolicyName, builder => builder
+                    .AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowCredentials()
+                    .AllowAnyMethod());
+            }
+            );
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
                 );
@@ -67,6 +78,8 @@ namespace Klootzakken.Web
             loggerFactory.AddDebug();
 
             var logger = loggerFactory.CreateLogger("Startup");
+
+            app.UseCors(PublicCorsPolicyName);
 
             if (env.IsDevelopment())
             {
