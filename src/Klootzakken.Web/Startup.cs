@@ -81,7 +81,7 @@ namespace Klootzakken.Web
 
             app.UseCors(PublicCorsPolicyName);
 
-            if (env.IsDevelopment())
+            if (true || env.IsDevelopment()) //Glueware.nl special!
             {
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
