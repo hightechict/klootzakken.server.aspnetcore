@@ -9,3 +9,4 @@ packages
 *.user
 _NCrunch_*
 .vscode
+app[sS]ettings.Production.json
