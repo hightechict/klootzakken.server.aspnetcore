@@ -15,7 +15,7 @@ namespace Klootzakken.Core.ApiModel
                     .Take(src.Players.Length - 1)
                     .Select(pl => new OtherPlayer(pl))
                     .ToArray();
-            CenterCard = src.CenterCard.Serialized();
+            CenterCard = src.CenterCard?.Serialized();
         }
 
         public You You { get; }
