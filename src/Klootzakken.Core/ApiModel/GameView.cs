@@ -5,8 +5,10 @@ namespace Klootzakken.Core.ApiModel
 {
     public class GameView
     {
-        public GameView( Game src, User user)
+        public GameView(Game src, User user)
         {
+            Id = src.Id;
+            Name = src.Name;
             You = new You(src.GetPlayer(user));
             var index = src.FindPlayer(user);
             Others =
@@ -18,6 +20,8 @@ namespace Klootzakken.Core.ApiModel
             CenterCard = src.CenterCard?.Serialized();
         }
 
+        public string Id { get; }
+        public string Name { get; }
         public You You { get; }
         public OtherPlayer[] Others { get; }
         public string CenterCard { get; }
