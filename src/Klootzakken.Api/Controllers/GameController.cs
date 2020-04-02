@@ -6,7 +6,7 @@ using Klootzakken.Core.Model;
 using Microsoft.AspNetCore.Authorization;
 using Klootzakken.Server.InMemory;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Klootzakken.Api.Controllers
 {
