@@ -4,7 +4,7 @@
     <OutputType>winexe</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="xunit" Version="2.1.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Klootzakken.Core\Klootzakken.Core.csproj" />
