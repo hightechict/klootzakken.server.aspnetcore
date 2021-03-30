@@ -7,13 +7,14 @@ using Microsoft.AspNetCore.Authorization;
 using Klootzakken.Server.InMemory;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using Klootzakken.Api.Attributes;
 
 namespace Klootzakken.Api.Controllers
 {
     /// <summary>
     /// Controller for the Game
     /// </summary>
-    [Authorize]
+    [ApiKey]
     [Route("")]
     public class GameController : Controller
     {
@@ -31,9 +32,9 @@ namespace Klootzakken.Api.Controllers
         [Route("lobby/create/{name}")]
         [ProducesResponseType(typeof(LobbyView), 200)]
         [SwaggerOperation("CreateLobby")]
-        public Task<IActionResult> CreateLobby(string name, [FromBody] bool isPublic = true)
+        public Task<IActionResult> CreateLobby(string name, bool isPublic = true)
         {
-            return WrapAsync(TheGameApi.CreateLobby(User.AsGameUser(), name, isPublic).ToTask());
+            return WrapAsync(TheGameApi.CreateLobby(GameUser, name, isPublic).ToTask());
         }
         /*
                 [HttpPost]
@@ -175,7 +176,8 @@ namespace Klootzakken.Api.Controllers
             try
             {
                 var retVal = await task;
-                return Ok(retVal);
+                var srespon =  Ok(retVal);
+                return srespon;
             }
             catch (ApiException ae)
             {

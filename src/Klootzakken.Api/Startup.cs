@@ -34,21 +34,21 @@ namespace Klootzakken.Api
                 //c.IncludeXmlComments(filePath);
 
                 c.AddSecurityDefinition("playerId", new OpenApiSecurityScheme
-                {
-                    Type = SecuritySchemeType.ApiKey,
-                    In = ParameterLocation.Query,
-                    Name = "playerId"
-                });
+                                                {
+                                                    Type = SecuritySchemeType.ApiKey,
+                                                    In = ParameterLocation.Header,
+                                                    Name = "playerId"
+                                                });
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "playerId" }
-            },
-            new[] { "readAccess", "writeAccess" }
-        }
-    });
+                                        {
+                                            {
+                                                new OpenApiSecurityScheme
+                                                {
+                                                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "playerId" }
+                                                },
+                                                new[] { "readAccess", "writeAccess" }
+                                            }
+                                        });
             });
             //services.AddSwaggerGenNewtonsoftSupport(); // explicit opt-in - needs to be placed after AddSwaggerGen()
         }
@@ -67,7 +67,7 @@ namespace Klootzakken.Api
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
