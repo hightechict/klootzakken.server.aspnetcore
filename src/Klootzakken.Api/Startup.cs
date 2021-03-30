@@ -11,8 +11,6 @@ namespace Klootzakken.Api
 {
     public class Startup
     {
-        private static readonly string PublicCorsPolicyName = "Public";
-
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -24,7 +22,7 @@ namespace Klootzakken.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddMvc().AddNewtonsoftJson();
+            //services.AddMvc().AddNewtonsoftJson();
             services.AddCors(a =>
                 a.AddDefaultPolicy(b => b.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin()));
 
@@ -52,7 +50,7 @@ namespace Klootzakken.Api
         }
     });
             });
-            services.AddSwaggerGenNewtonsoftSupport(); // explicit opt-in - needs to be placed after AddSwaggerGen()
+            //services.AddSwaggerGenNewtonsoftSupport(); // explicit opt-in - needs to be placed after AddSwaggerGen()
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
